@@ -1349,24 +1349,24 @@ function pager(id){
 
 /* ===== story film: chapters in seconds of media/story.mp4 ===== */
 var STEPS=[
- {at:[0,1.6],intro:1,ey:["أتيليه البيانو","PIANO ATELIER"],h:["من <em>لمسة</em> إلى لحن","From <em>touch</em> to melody"],
+ {at:[0,7.0],intro:1,ey:["أتيليه البيانو","PIANO ATELIER"],h:["من <em>لمسة</em> إلى لحن","From <em>touch</em> to melody"],
   p:["نزّل الشاشة وتابع شلون يطلع صوت البيانو، من المفتاح لحد ما يوصل لإيدك.","Scroll down and follow how a piano makes its sound, from the key all the way back to your hands."]},
- {at:[1.6,7.0],n:"01",ey:["المفاتيح","THE KEYS"],h:["ثمانية وثمانين مفتاح","Eighty-eight keys"],
+ {at:[7.9,15.0],n:"01",ey:["المفاتيح","THE KEYS"],h:["ثمانية وثمانين مفتاح","Eighty-eight keys"],
   p:["أبيض وأسود بنمط يتكرر: مجموعة سودة من اثنين، ومجموعة من ثلاثة. من تحفظ النمط، تعرف كل مفتاح بالبيانو.","White and black in a repeating pattern: a pair of black keys, then a group of three. Learn the pattern and you know every key."],
   r:[[["المفاتيح","KEYS"],"52 + 36"],[["المدى","RANGE"],"A0 → C8"]]},
- {at:[7.6,11.0],n:"02",ey:["المطرقة","THE HAMMER"],h:["المطرقة","The hammer"],
+ {at:[15.8,23.0],n:"02",ey:["المطرقة","THE HAMMER"],h:["المطرقة","The hammer"],
   p:["تضغط المفتاح، فتنطلق مطرقة ملفوفة بلبّاد وتضرب الوتر وترجع بلحظة. سرعة ضغطتك هي اللي تقرر قوة الصوت.","Press a key and a felt-covered hammer flies up, strikes the string and springs back. How fast you press decides how loud it sounds."],
   r:[[["القطع بكل مفتاح","PARTS PER KEY"],"≈ 100"],[["الصوت","DYNAMICS"],"pp → ff"]]},
- {at:[11.8,18.4],n:"03",ey:["الأوتار","THE STRINGS"],h:["الأوتار","The strings"],
+ {at:[23.7,30.9],n:"03",ey:["الأوتار","THE STRINGS"],h:["الأوتار","The strings"],
   p:["أغلب النوتات إلها ثلاث أوتار تهتز سوا، ولوح الصوت الخشبي يكبّر اهتزازها ويملّي الغرفة.","Most notes have three strings ringing together, and the wooden soundboard turns their trembling into a sound that fills the room."],
   r:[[["اهتزاز الوتر · لا٤","STRING · A4"],"0 Hz","hz"],[["الأوتار","STRINGS"],"≈ 230"]]},
- {at:[19.2,25.8],n:"04",ey:["الدواسات","THE PEDALS"],h:["الدواسات","The pedals"],
+ {at:[31.7,38.8],n:"04",ey:["الدواسات","THE PEDALS"],h:["الدواسات","The pedals"],
   p:["الدواسة اليمنى ترفع الكواتم عن كل الأوتار، فالنوتات تبقى ترن وتذوب ببعضها. هنا يبدي إحساس البيانو.","The right pedal lifts the dampers off every string, so notes keep ringing and melt into one another. This is where the piano starts to breathe."],
   r:[[["الدواسات","PEDALS"],"3"],[["الإطالة","SUSTAIN"],"♪ · · · ·"]]},
- {at:[26.6,33.3],n:"05",ey:["الإيدين","THE HANDS"],h:["إيدين، مدرّجين","Two hands, two staves"],
+ {at:[39.5,44.6],n:"05",ey:["الإيدين","THE HANDS"],h:["إيدين، مدرّجين","Two hands, two staves"],
   p:["اليمنى تقرا مفتاح صول وتغنّي اللحن، واليسرى تقرا مفتاح فا وتمسك الأرض تحته. عشر أصابع، كل واحد إله رقم.","The right hand reads the treble clef and sings the tune; the left reads the bass clef and holds the ground beneath it. Ten fingers, each with a number."],
   r:[[["اليمنى","RIGHT"],"𝄞 1–5"],[["اليسرى","LEFT"],"𝄢 5–1"]]},
- {at:[34.0,99],n:"06",ey:["دورك","YOUR TURN"],h:["حط <em>إيدك</em> على المفاتيح","Put <em>your hands</em> on the keys"],
+ {at:[45.2,99],n:"06",ey:["دورك","YOUR TURN"],h:["حط <em>إيدك</em> على المفاتيح","Put <em>your hands</em> on the keys"],
   p:["الموقع يضوّي المفاتيح وأرقام الأصابع، ويعزفلك بصوت بيانو حقيقي، ومن تعزف انت يسمعك نوتة نوتة.","The site lights the keys and finger numbers, plays every note on a real piano, and when you play, it listens note by note."],
   r:"cta"}
 ];
@@ -1887,7 +1887,7 @@ function musTick(){
   if(want===0&&MUS.vol<0.01&&!MUS.el.paused){ MUS.el.pause(); musBtn(); }
   else if(want>0&&MUS.el.paused&&MUS.ok){ MUS.el.play().catch(function(){}); musBtn(); }
 }
-var ST={url:null,ready:false,loading:false,dur:41.6,target:0,cur:0};
+var ST={url:null,ready:false,loading:false,dur:47.4,target:0,cur:0};
 var stReduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 var stSmall=window.innerWidth<820||(navigator.connection&&navigator.connection.saveData);
 function stLoad(){
