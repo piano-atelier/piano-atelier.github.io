@@ -723,6 +723,17 @@ select:focus,input:focus{border-color:var(--gold)}
 .tq-trail .in{background:rgba(200,164,106,.12);color:var(--ivory)}
 .tq-trail .out{background:rgba(163,57,47,.18);color:#F2C7C0;border-color:rgba(163,57,47,.5)}
 @media (max-width:860px){ .lesson-grid{grid-template-columns:1fr} .plan li{flex-direction:column;align-items:flex-start} .prog-strip{grid-template-columns:1fr 1fr} .pa-result{grid-template-columns:1fr;text-align:center} .pa-staff .staff{height:150px} .pa-screen[data-view="staff"] .pa-staff .staff{height:170px} .rh-steps span{height:38px;font-size:.72rem} }
+/* library & import */
+.lib-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.lib-bar input[type=search]{padding:8px 12px;min-width:200px}
+.imp-wrap{margin:4px 0 14px}
+.imp{margin-top:10px;display:grid;gap:10px}
+.imp-row{display:flex;flex-wrap:wrap;gap:8px}
+.imp-row input{padding:8px 12px;flex:1;min-width:200px}
+.imp-row input[type=file]{padding:6px;color:#D9CFC1}
+.stars .medal{color:var(--gold);font-size:.85em;margin-inline-start:4px}
+.pill.chal[aria-pressed="true"]{background:var(--gold);color:var(--ebony);border-color:var(--gold)}
+.adm-act input{padding:7px 10px;min-width:160px}
 
 
 .locked{max-width:620px;margin:10px auto;text-align:center;padding:42px 28px}
@@ -1170,7 +1181,7 @@ function supa(path,body,tok,method){
     return r.text().then(function(t){ var j=null; try{ j=t?JSON.parse(t):null; }catch(e){} if(!r.ok){ var m=(j&&(j.message||j.error_description||j.msg))||("HTTP "+r.status); throw new Error(m); } return j; }); });
 }
 function rpc(fn,args,tok){ return supa("/rest/v1/rpc/"+fn,args||{},tok); }
-function accErr(m){ return ({bad_code:L("الكود غلط، تأكد منه.","That code isn’t valid."),other_device:L("هذا الكود مربوط بجهاز ثاني. تواصل ويه أستاذك حتى يفكّه.","This code is linked to another device. Ask your teacher to release it."),expired:L("اشتراكك خلص.","Your membership has ended."),bad_device:L("صار خلل بالجهاز، حدّث الصفحة.","Device error, reload the page."),"Invalid login credentials":L("الإيميل أو الباسورد غلط.","Wrong email or password.")})[m]||(L("ما گدرت أتصل، تأكد من الإنترنت. ","Couldn’t connect; check your internet. ")+'<span class="ltr small">('+m+')</span>'); }
+function accErr(m){ return ({bad_code:L("الكود غلط، تأكد منه.","That code isn’t valid."),other_device:L("هذا الكود مربوط بجهاز ثاني. تواصل ويه أستاذك حتى يفكّه.","This code is linked to another device. Ask your teacher to release it."),expired:L("اشتراكك خلص.","Your membership has ended."),bad_device:L("صار خلل بالجهاز، حدّث الصفحة.","Device error, reload the page."),too_many:L("وصلت للحد: ١٠ مقطوعات باليوم.","Limit reached: 10 pieces a day."),too_big:L("المقطوعة كلش طويلة.","The piece is too long."),bad_title:L("اكتب اسم المقطوعة.","Enter a title."),no_data:L("هذا طلب رابط بلا نوتات، ارفعله ملف أول.","This is a link request with no notes; upload a file for it first."),"Invalid login credentials":L("الإيميل أو الباسورد غلط.","Wrong email or password.")})[m]||(L("ما گدرت أتصل، تأكد من الإنترنت. ","Couldn’t connect; check your internet. ")+'<span class="ltr small">('+m+')</span>'); }
 var LESSONS=[];
 function setPieces(rows){ rows=rows||[]; PIECES=rows.filter(function(r){return r.kind==="piece";}).map(function(r){ var d=r.data; d.stage=r.stage; return d; }); }
 function canPiece(p){ return ACC.mode==="owner"||(ACC.mode==="member"&&ACC.active&&p.stage<=ACC.stage); }
@@ -1308,7 +1319,7 @@ function bindCourse(){
 }
 
 /* ---- owner: control panel ---- */
-var ADM={subs:[],res:[],q:"",msg:"",open:null};
+var ADM={subs:[],res:[],q:"",msg:"",open:null,lib:[],libf:"pending"};
 function vAdmin(){
   var h=pageHead("admin",L("لوحة التحكم","Control panel"),L("أكواد المشتركين، نتائجهم، والتجديد.","Member codes, results and renewals."));
   h+='<div class="block"><div class="panel"><div class="big" style="font-size:1.25rem">'+L("كود جديد","New code")+'</div><form id="adm-new" class="adm-form">';
@@ -1317,7 +1328,10 @@ function vAdmin(){
   h+='<select id="an-days"><option value="30">'+L("٣٠ يوم","30 days")+'</option><option value="7">'+L("٧ أيام (تجربة)","7 days (trial)")+'</option><option value="60">'+L("٦٠ يوم","60 days")+'</option></select>';
   h+='<input id="an-note" placeholder="'+L("ملاحظة","Note")+'"><button class="btn" type="submit">'+L("سوّي الكود","Create code")+'</button></form><div id="adm-msg">'+ADM.msg+'</div></div>';
   h+='<div class="row" style="justify-content:space-between;margin:22px 0 10px"><div class="big" style="font-size:1.25rem">'+L("المشتركين","Members")+' <span class="tag">'+num(ADM.subs.length)+'</span></div><input id="adm-q" placeholder="'+L("بحث بالاسم أو الكود","Search name or code")+'" value="'+ADM.q+'" style="max-width:240px"></div>';
-  h+='<div id="adm-list"></div><p class="small" style="margin-top:14px"><button class="linkbtn" type="button" id="own-out">'+L("تسجيل خروج من لوحة التحكم","Sign out of the control panel")+'</button></p></div>';
+  h+='<div id="adm-list"></div>';
+  h+='<div class="row" style="justify-content:space-between;margin:28px 0 10px;flex-wrap:wrap;gap:8px"><div class="big" style="font-size:1.25rem">'+L("مكتبة المدير","Owner library")+' <span class="tag" id="lib-n">'+num(ADM.lib.length)+'</span></div><div class="chips-row" id="lib-f">'+[["pending",L("جديدة","New")],["published",L("منشورة","Published")],["private",L("خاصة","Private")],["link",L("طلبات روابط","Link requests")],["all",L("الكل","All")]].map(function(x){ return '<button type="button" class="pill sm" data-libf="'+x[0]+'" aria-pressed="'+(ADM.libf===x[0])+'">'+x[1]+'</button>'; }).join("")+'</div></div>';
+  h+='<p class="small">'+L("المقطوعات اللي يضيفها المشتركين، وتضيفها انت من صفحة المقطوعات، توصل هنا. اسمعها، وبعدين انشرها بمرحلة أو خلّيها خاصة.","Pieces members add, and the ones you add on the pieces page, arrive here. Listen, then publish to a stage or keep private.")+'</p><div id="adm-lib"></div><div id="adm-pa" style="margin-top:16px"></div>';
+  h+='<p class="small" style="margin-top:14px"><button class="linkbtn" type="button" id="own-out">'+L("تسجيل خروج من لوحة التحكم","Sign out of the control panel")+'</button></p></div>';
   return h;
 }
 function admSuggest(s){
@@ -1347,13 +1361,35 @@ function renderAdmList(){
     h+='<div class="adm-act"><select data-rs="'+s.id+'">'+STAGES.map(function(x){return'<option value="'+x.n+'"'+(x.n===sg.st?' selected':'')+'>'+L("المرحلة ","Stage ")+num(x.n)+'</option>';}).join("")+'</select><button class="btn" type="button" data-renew="'+s.id+'">'+L("جدّد ٣٠ يوم","Renew 30 days")+'</button><button class="btn sec" type="button" data-copy="'+s.code+'">'+L("انسخ الكود","Copy code")+'</button>'+(s.device_id?'<button class="btn sec" type="button" data-reset="'+s.id+'">'+L("فك الجهاز","Release device")+'</button>':'')+'<button class="btn sec danger" type="button" data-del="'+s.id+'" data-name="'+s.name.replace(/"/g,"&quot;")+'">'+L("حذف","Delete")+'</button></div></div>';
     return h; }).join("");
 }
+var SRCN={midi:["MIDI","MIDI"],xml:["MusicXML","MusicXML"],audio:["تسجيل","Recording"],link:["رابط","Link"]}, STN={pending:["جديدة","New"],published:["منشورة","Published"],private:["خاصة","Private"],rejected:["مرفوضة","Rejected"]};
+function renderAdmLib(){ var box=document.getElementById("adm-lib"); if(!box) return; var n=document.getElementById("lib-n"); if(n) n.textContent=num(ADM.lib.length);
+  var list=ADM.lib.filter(function(x){ return ADM.libf==="all"||(ADM.libf==="link"?x.source==="link":x.status===ADM.libf&&x.source!=="link"); });
+  if(!list.length){ box.innerHTML='<p class="small">'+L("ماكو شي هنا هسه.","Nothing here yet.")+'</p>'; return; }
+  var who=function(x){ if(x.by_owner) return L("انت","You"); var m=ADM.subs.filter(function(s){ return s.id===x.subscriber_id; })[0]; return m?m.name:L("مشترك محذوف","Deleted member"); };
+  box.innerHTML=list.map(function(x){ var h='<div class="panel adm-sub"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><div><b>'+esc(x.title)+'</b> <span class="small">· '+esc(who(x))+' · '+fmtD(x.created_at)+'</span></div><div class="row" style="gap:6px"><span class="tag">'+L(SRCN[x.source][0],SRCN[x.source][1])+'</span><span class="tag'+(x.status==="published"?' cer':'')+'">'+L(STN[x.status][0],STN[x.status][1])+(x.status==="published"&&x.stage?' · '+L("المرحلة ","stage ")+num(x.stage):'')+'</span></div></div>';
+    if(x.link) h+='<p class="small" style="margin-top:6px"><a href="'+esc(x.link)+'" target="_blank" rel="noopener noreferrer" class="ltr">'+esc(x.link)+'</a></p>';
+    h+='<div class="adm-act">';
+    if(x.data) h+='<button class="btn sec" type="button" data-lplay="'+x.id+'">'+L("اسمع وشوف","Preview")+'</button><input data-lt="'+x.id+'" value="'+esc(x.title)+'" placeholder="'+L("الاسم بالمكتبة","Library title")+'"><select data-lst="'+x.id+'">'+STAGES.map(function(st){ return '<option value="'+st.n+'"'+((x.stage||1)===st.n?' selected':'')+'>'+L("المرحلة ","Stage ")+num(st.n)+'</option>'; }).join("")+'</select><button class="btn" type="button" data-lpub="'+x.id+'">'+(x.status==="published"?L("حدّث النشر","Update"):L("انشرها للمشتركين","Publish"))+'</button>';
+    if(x.status==="published"||x.status==="pending") h+='<button class="btn sec" type="button" data-lpriv="'+x.id+'">'+(x.status==="published"?L("وكّف النشر","Unpublish"):L("خلّيها خاصة","Keep private"))+'</button>';
+    h+='<button class="btn sec danger" type="button" data-ldel="'+x.id+'">'+L("حذف","Delete")+'</button></div></div>'; return h; }).join("");
+}
+function admLibLoad(){ return adm("/rest/v1/submissions?select=*&order=created_at.desc&limit=300").then(function(r){ ADM.lib=r||[]; renderAdmLib(); }).catch(function(){}); }
 function admLoad(){
   return Promise.all([adm("/rest/v1/subscribers?select=*&order=created_at.desc"),adm("/rest/v1/results?select=subscriber_id,item,score,stage,created_at&order=created_at.desc&limit=2000")])
-    .then(function(r){ ADM.subs=r[0]||[]; ADM.res=r[1]||[]; renderAdmList(); var c=document.querySelector(".big .tag"); if(c) c.textContent=num(ADM.subs.length); })
+    .then(function(r){ ADM.subs=r[0]||[]; ADM.res=r[1]||[]; renderAdmList(); admLibLoad(); var c=document.querySelector(".big .tag"); if(c) c.textContent=num(ADM.subs.length); })
     .catch(function(e){ var m=document.getElementById("adm-msg"); if(m) m.innerHTML='<span class="rose">'+accErr(e.message)+'</span>'; });
 }
 function bindAdmin(){
   admLoad();
+  document.getElementById("lib-f").onclick=function(e){ var b=e.target.closest("[data-libf]"); if(!b) return; ADM.libf=b.getAttribute("data-libf"); document.querySelectorAll("[data-libf]").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); renderAdmLib(); };
+  document.getElementById("adm-lib").onclick=function(e){ var b, f=function(id){ return ADM.lib.filter(function(x){ return x.id===id; })[0]; };
+    if((b=e.target.closest("[data-lplay]"))){ var x=f(b.getAttribute("data-lplay")), p=JSON.parse(JSON.stringify(x.data)); p.id="prev-"+x.id; delete p.own; paMount(document.getElementById("adm-pa"),p,{key:"prev:"+x.id,over:L("معاينة · ","Preview · ")+esc(x.title)}); document.getElementById("adm-pa").scrollIntoView({behavior:"smooth"}); }
+    else if((b=e.target.closest("[data-lpub]"))){ var id=b.getAttribute("data-lpub"), t=document.querySelector('[data-lt="'+id+'"]').value.trim(), st=+document.querySelector('[data-lst="'+id+'"]').value; b.disabled=true;
+      adm("/rest/v1/rpc/admin_publish",{p_id:id,p_stage:st,p_title_ar:t,p_title_en:t}).then(admLibLoad).catch(function(e2){ b.disabled=false; alertMsg(accErr(e2.message)); }); }
+    else if((b=e.target.closest("[data-lpriv]"))){ b.disabled=true; adm("/rest/v1/rpc/admin_unpublish",{p_id:b.getAttribute("data-lpriv"),p_status:"private"}).then(admLibLoad).catch(function(e2){ b.disabled=false; alertMsg(accErr(e2.message)); }); }
+    else if((b=e.target.closest("[data-ldel]"))){ if(!window.confirm(L("تحذفها نهائياً؟ إذا منشورة تنشال من المكتبة هم.","Delete it for good? If published it also leaves the library."))) return; var did=b.getAttribute("data-ldel"); b.disabled=true;
+      adm("/rest/v1/rpc/admin_unpublish",{p_id:did,p_status:"rejected"}).then(function(){ return adm("/rest/v1/submissions?id=eq."+encodeURIComponent(did),null,"DELETE"); }).then(admLibLoad).catch(function(e2){ b.disabled=false; alertMsg(accErr(e2.message)); }); }
+  };
   document.getElementById("own-out").onclick=ownerLogout;
   document.getElementById("adm-q").oninput=function(e){ ADM.q=e.target.value; renderAdmList(); };
   document.getElementById("adm-new").onsubmit=function(e){ e.preventDefault(); var g=function(i){return document.getElementById(i).value.trim();};
@@ -1793,7 +1829,7 @@ var PIECES=[];
 function parseLine(txt){ var out=[],t=0; (txt||"").split(/\s+/).filter(Boolean).forEach(function(tok){ var p=tok.split(":"), b=parseFloat(p[1]);
   if(p[0]==="r") out.push({m:null,b:b,at:t}); else { var ns=p[0].split("+").map(function(x){ return midiOf(parseNote(x)); }); out.push({m:ns.length>1?ns:ns[0],sp:p[0].split("+").map(parseNote),b:b,at:t}); } t+=b; }); return out; }
 var PR={id:null,hands:"both",bpm:null,mode:null,raf:0,t0:0,ev:null};
-function prPieces(){ return PIECES.slice().sort(function(a,b){ return (a.stage-b.stage)||(a.sort||0)-(b.sort||0); }); }
+function prPieces(){ return PIECES.concat(typeof ownGet==="function"?ownGet():[]).sort(function(a,b){ return (a.stage-b.stage)||(a.sort||0)-(b.sort||0); }); }
 function prOpen(p){ return typeof canPiece!=="function"||canPiece(p); }
 function prData(p){
   var rh=parseLine(p.rh), lh=parseLine(p.lh);
@@ -1804,29 +1840,38 @@ function prData(p){
   return {rh:rh,lh:lh,tot:tot};
 }
 var CAT={drill:["تمرين","Exercise"],tune:["لحن","Tune"],classic:["كلاسيك","Classical"],chords:["كوردات","Chords"],maqam:["مقام","Maqam"]};
+var PCF={cat:"all",q:""};
+var PCATS=[["all",["الكل","All"]],["new",["جديد بالمكتبة","New in library"]],["drill",["تمارين","Exercises"]],["tune",["ألحان","Tunes"]],["classic",["كلاسيك","Classical"]],["chords",["كوردات","Chords"]],["maqam",["مقامات","Maqams"]],["mine",["مقطوعاتي","My pieces"]]];
+function pcMatch(p){ if(PCF.cat==="new"&&!p.lib) return false; if(PCF.cat==="mine"&&!p.own) return false; if(["all","new","mine"].indexOf(PCF.cat)<0&&p.cat!==PCF.cat) return false;
+  if(PCF.q){ var q=PCF.q.toLowerCase(); if((p.t[0]+" "+p.t[1]).toLowerCase().indexOf(q)<0) return false; } return true; }
+function pcListHTML(){ var ps=prPieces().filter(pcMatch), PG=progGet(), h='', st=-1;
+  if(!ps.length) return '<p class="small">'+L("ماكو مقطوعات بهذا البحث.","No pieces match.")+'</p>';
+  ps.forEach(function(p){ var sk=p.own?"mine":p.stage; if(sk!==st){ st=sk; h+='<div class="pc-st">'+(p.own?L("مقطوعاتي","My pieces"):L("المرحلة ","Stage ")+num(p.stage))+'</div>'; }
+    var open=prOpen(p), g=PG[p.id]||{}; h+='<button type="button" class="pc-i'+(open?'':' lk')+'" data-pc="'+p.id+'" aria-pressed="'+(p.id===PR.id)+'"'+(open?'':' disabled')+'><span class="tag">'+L((CAT[p.cat]||CAT.tune)[0],(CAT[p.cat]||CAT.tune)[1])+'</span>'+L(p.t[0],p.t[1])+(g.s||g.c?starsHTML(g.s||0,3,g.c):'')+'</button>'; });
+  return h; }
 function vPractice(){
-  var h=pageHead("practice",L("مقطوعات وتمارين","Pieces & exercises"),L("كل مقطوعة بالإيدين: تسمعها بصوت بيانو حقيقي والمفاتيح تضوّي ويه أرقام الأصابع. بعدين اعزفها انت، والموقع يسمعك بالمايك أو بكيبل MIDI ويمشي وياك نوتة نوتة.","Every piece for both hands: hear it on a real piano while the keys light up with finger numbers. Then play it yourself while the site listens through the mic or a MIDI cable and moves with you note by note."));
+  var h=pageHead("practice",L("مقطوعات وتمارين","Pieces & exercises"),L("مكتبة مقطوعات بالإيدين: تسمعها بصوت بيانو حقيقي، وتشوفها نازلة على المفاتيح ومكتوبة بالنوتة، وتعزفها والموقع يسمعك نوتة نوتة.","A library of two-hand pieces: hear them on a real piano, watch them fall onto the keys and on the sheet, then play while the site listens note by note."));
   var ps=prPieces();
   if(!ps.length){ return h+'<div class="block"><div class="panel locked"><p>'+L("المقطوعات تنفتح ويه الاشتراك.","Pieces open with membership.")+'</p><div class="btns" style="justify-content:center"><a class="btn" href="#course">'+L("مسيرتي","My course")+'</a></div></div></div>'+pager("practice"); }
   if(!PR.id||!ps.some(function(p){return p.id===PR.id&&prOpen(p);})){ var f=ps.filter(prOpen)[0]; PR.id=f?f.id:ps[0].id; }
-  var PG=progGet(); h+='<div class="block"><div class="pc-list" id="pc-list">';
-  var st=-1; ps.forEach(function(p){ if(p.stage!==st){ st=p.stage; h+='<div class="pc-st">'+L("المرحلة ","Stage ")+num(st)+'</div>'; }
-    var open=prOpen(p); h+='<button type="button" class="pc-i'+(open?'':' lk')+'" data-pc="'+p.id+'" aria-pressed="'+(p.id===PR.id)+'"'+(open?'':' disabled')+'><span class="tag">'+L(CAT[p.cat][0],CAT[p.cat][1])+'</span>'+L(p.t[0],p.t[1])+((PG[p.id]||{}).s?starsHTML(PG[p.id].s):'')+'</button>'; });
-  h+='</div><div class="panel" id="pc-panel"></div></div>';
+  h+='<div class="block"><div class="lib-bar"><div class="chips-row" id="pc-cats">'+PCATS.map(function(c){ return '<button type="button" class="pill sm" data-pcat="'+c[0]+'" aria-pressed="'+(PCF.cat===c[0])+'">'+L(c[1][0],c[1][1])+'</button>'; }).join("")+'</div><input type="search" id="pc-q" placeholder="'+L("دوّر على مقطوعة…","Search pieces…")+'" value="'+esc(PCF.q)+'"><span class="small">'+num(ps.length)+L(" مقطوعة"," pieces")+'</span></div>';
+  h+='<div id="pc-imp"></div><div class="pc-list" id="pc-list">'+pcListHTML()+'</div><div class="panel" id="pc-panel"></div></div>';
   h+='<div class="block">'+blockHead("★",L("تقدّمك","Your progress"))+'<div id="prog-box">'+progressHTML()+'</div><div id="cert-box"></div></div>';
   return h+pager("practice");
 }
 function renderPiece(){
-  prStop(); paStop(); var p=PIECES.filter(function(x){return x.id===PR.id;})[0]; if(!p) return; PR.p=p;
+  prStop(); paStop(); var p=prPieces().filter(function(x){return x.id===PR.id;})[0]; if(!p) return; PR.p=p;
   document.querySelectorAll("[data-pc]").forEach(function(b){ b.setAttribute("aria-pressed",b.getAttribute("data-pc")===PR.id?"true":"false"); });
   var mq=p.mq?MAQAM.filter(function(q){return q.id===p.mq;})[0]:null;
   var h='<div class="row" style="justify-content:space-between;gap:10px"><div class="big">'+L(p.t[0],p.t[1])+'</div><span class="tag">'+L(CAT[p.cat][0],CAT[p.cat][1])+(mq?' · '+L("مقام ","Maqam ")+L(mq.n[0],mq.n[1]):'')+' · '+num(p.bpm)+' BPM</span></div>';
   h+='<p style="margin-top:8px;color:#D9CFC1">'+L(p.d[0],p.d[1])+'</p>';
   if(p.src) h+='<p class="small" style="margin-top:4px">'+L(p.src[0],p.src[1])+'</p>';
+  if(p.own) h+='<p class="small" style="margin-top:6px"><button type="button" class="linkbtn" id="own-del">'+L("شيل هاي المقطوعة من مقطوعاتي","Remove this piece from My pieces")+'</button></p>';
   h+='<div id="pc-lesson"></div><div id="pc-pa" style="margin-top:18px"></div>';
   document.getElementById("pc-panel").innerHTML=h;
   paMount(document.getElementById("pc-pa"),p,{done:function(){ var b=document.getElementById("prog-box"); if(b) b.innerHTML=progressHTML(); var c=document.querySelector('[data-pc="'+p.id+'"]'); if(c){ var st=(progGet()[p.id]||{s:0}).s, old=c.querySelector(".stars"); if(old) old.remove(); c.insertAdjacentHTML("beforeend",starsHTML(st)); } }});
   document.getElementById("pc-lesson").innerHTML=lessonHTML(p,PA.G);
+  var od=document.getElementById("own-del"); if(od) od.onclick=function(){ if(!window.confirm(L("تشيلها من جهازك؟","Remove it from this device?"))) return; ownSave(ownGet().filter(function(x){ return x.id!==p.id; })); PR.id=null; render(); };
   document.querySelectorAll("[data-plan]").forEach(function(b){ b.onclick=function(){ paApply(PA.plan[+b.getAttribute("data-plan")]); }; });
 }
 function noteTxt(n){ var s=n.sp; return s.length>1?s.map(function(x){return nmShort(x);}).join(""):nmShort(s[0])+'<sub>'+num(s[0].o)+'</sub>'; }
@@ -1865,17 +1910,17 @@ function prStop(){ if(PR.raf) cancelAnimationFrame(PR.raf); PR.raf=0; stopAllSou
 
 /* ================= progress: stars, days in a row, certificates ================= */
 function progGet(){ try{ return JSON.parse(localStorage.getItem("pa_prog")||"{}")||{}; }catch(e){ return {}; } }
-function progSet(id,st,acc){ var P=progGet(), o=P[id]||{s:0,a:0}; o.s=Math.max(o.s,st); o.a=Math.max(o.a,Math.round(acc)); P[id]=o; try{ localStorage.setItem("pa_prog",JSON.stringify(P)); }catch(e){} dayMark(); }
+function progSet(id,st,acc,ch){ var P=progGet(), o=P[id]||{s:0,a:0}; if(ch) o.c=1; o.s=Math.max(o.s,st); o.a=Math.max(o.a,Math.round(acc)); P[id]=o; try{ localStorage.setItem("pa_prog",JSON.stringify(P)); }catch(e){} dayMark(); }
 function dayKey(d){ d=d||new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 function daysGet(){ try{ return JSON.parse(localStorage.getItem("pa_days")||"[]")||[]; }catch(e){ return []; } }
 function dayMark(){ var a=daysGet(), k=dayKey(); if(a.indexOf(k)<0){ a.push(k); a=a.slice(-400); try{ localStorage.setItem("pa_days",JSON.stringify(a)); }catch(e){} } }
 function streak(){ var a=daysGet(), n=0, d=new Date(); if(a.indexOf(dayKey(d))<0) d.setDate(d.getDate()-1); while(a.indexOf(dayKey(d))>=0){ n++; d.setDate(d.getDate()-1); } return n; }
-function starsHTML(n,max){ var h='<span class="stars" aria-label="'+n+'/'+(max||3)+'">'; for(var i=0;i<(max||3);i++) h+='<i class="'+(i<n?"on":"")+'">★</i>'; return h+'</span>'; }
+function starsHTML(n,max,medal){ var h='<span class="stars" aria-label="'+n+'/'+(max||3)+'">'; for(var i=0;i<(max||3);i++) h+='<i class="'+(i<n?"on":"")+'">★</i>'; return h+(medal?'<b class="medal" title="'+L("نجحت بالتحدّي","Challenge passed")+'">◆</b>':'')+'</span>'; }
 var STG_T=[["",""],["وضعية دو","C position"],["قراءة النوتة","Reading music"],["الكوردات","Chords"],["المقامات على البيانو","Maqams on the piano"],["مقامات الأرباع","Quarter-tone maqams"]];
 
 /* ================= play along: falling notes + a scrolling staff; the site plays, waits and listens ================= */
 var DYNV={pp:.45,p:.58,mp:.7,mf:.84,f:1,ff:1.1};
-var PA={p:null,view:"both",hands:"both",speed:1,wait:true,metro:true,loop:-1,mode:null,t:0,raf:0,K:{},parts:[]};
+var PA={p:null,challenge:false,view:"both",hands:"both",speed:1,wait:true,metro:true,loop:-1,mode:null,t:0,raf:0,K:{},parts:[]};
 try{ var pv0=localStorage.getItem("pa_view"); if(pv0==="fall"||pv0==="staff"||pv0==="both") PA.view=pv0; }catch(e){}
 function m2s(m,flat){ var n=spellMidi(m,flat); return LET[n.l]+({"-1":"b","1":"#"}[String(n.a)]||"")+n.o; }
 function paBuild(p){
@@ -1909,7 +1954,7 @@ function paMount(host,p,opt){
   h+='<div class="pa-bar">'+segHTML("pa-view",[["fall",L("نوتات نازلة","Falling notes")],["staff",L("النوتة","Sheet")],["both",L("الاثنين","Both")]],PA.view);
   h+=segHTML("pa-hands",[["both",L("الإيدين","Both hands"),one],["R",L("اليمنى","Right"),G.hs.indexOf("R")<0],["L",L("اليسرى","Left"),G.hs.indexOf("L")<0]],PA.hands);
   h+=segHTML("pa-speed",[[0.5,num(50)+"٪"],[0.7,num(70)+"٪"],[0.85,num(85)+"٪"],[1,num(100)+"٪"],[1.15,num(115)+"٪"]].map(function(x){ x[1]=lang==="ar"?x[1]:x[1].replace("٪","%"); return x; }),PA.speed);
-  h+='<button type="button" class="pill sm" id="pa-wait" aria-pressed="'+PA.wait+'">'+L("ينتظرك","Wait for me")+'</button><button type="button" class="pill sm" id="pa-metro" aria-pressed="'+PA.metro+'">'+L("مترونوم","Metronome")+'</button></div>';
+  h+='<button type="button" class="pill sm" id="pa-wait" aria-pressed="'+PA.wait+'">'+L("ينتظرك","Wait for me")+'</button><button type="button" class="pill sm" id="pa-metro" aria-pressed="'+PA.metro+'">'+L("مترونوم","Metronome")+'</button><button type="button" class="pill sm chal" id="pa-chal" aria-pressed="'+PA.challenge+'" title="'+L("بس النوتة، بلا نوتات نازلة ولا مفاتيح تضوي","Sheet only: no falling notes, no lit keys")+'">'+L("تحدّي","Challenge")+'</button></div>';
   h+='<div class="pa-ph" id="pa-ph"><span class="small">'+L("كرّر مقطع:","Loop a part:")+'</span><button type="button" class="pill sm" data-ph="-1" aria-pressed="true">'+L("كلها","Whole piece")+'</button>'+G.ph.map(function(x,i){ return '<button type="button" class="pill sm" data-ph="'+i+'" aria-pressed="false">'+L("المقطع ","Part ")+num(i+1)+' <span class="small">· '+L("م","bar ")+num(barOf(G,x[0]))+'–'+num(barOf(G,x[1]-1e-3))+'</span></button>'; }).join("")+'</div>';
   h+='<div class="btns"><button class="btn sec" type="button" id="pa-demo">'+L("اسمع وشوف","Listen & watch")+'</button><button class="btn" type="button" id="pa-go">'+L("اعزف انت","Your turn")+'</button><button class="btn sec" type="button" id="pa-stop" disabled>'+L("إيقاف","Stop")+'</button><button class="btn sec" type="button" id="pa-rec" aria-pressed="false">'+L("سجّل نفسك","Record yourself")+'</button><span id="midi-st"></span></div>';
   h+='<div id="pa-live" class="ex-live" aria-live="polite">'+L("اختار وضعك واضغط «اعزف انت». تكدر تعزف على بيانوك (المايك أو MIDI)، أو تدوس المفاتيح بالشاشة، أو بكيبورد الكمبيوتر.","Pick your settings and press “Your turn”. Play your own piano (mic or MIDI), tap the keys on screen, or use your computer keyboard.")+'</div><div id="pa-res"></div><div id="pa-rec-out"></div></div>';
@@ -1920,7 +1965,7 @@ function paBind(){
     ["pa-hands",function(v){ PA.hands=v; paStop(); }],["pa-speed",function(v){ PA.speed=+v; }]];
   segs.forEach(function(s){ var el=document.getElementById(s[0]); el.onclick=function(e){ var b=e.target.closest("button"); if(!b||b.disabled) return; el.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); s[1](b.getAttribute("data-v")); }; });
   var tg=function(id,k){ var b=document.getElementById(id); b.onclick=function(){ PA[k]=!PA[k]; b.setAttribute("aria-pressed",PA[k]?"true":"false"); if(k==="wait"&&PA.mode==="go") paStart("go"); }; };
-  tg("pa-wait","wait"); tg("pa-metro","metro");
+  tg("pa-wait","wait"); tg("pa-metro","metro"); tg("pa-chal","challenge");
   document.getElementById("pa-ph").onclick=function(e){ var b=e.target.closest("[data-ph]"); if(!b) return; PA.loop=+b.getAttribute("data-ph"); document.querySelectorAll("[data-ph]").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); var was=PA.mode; paStop(); paReset(PA.loop<0?0:PA.G.ph[PA.loop][0]); paFrame(); if(was) paStart(was); };
   document.getElementById("pa-demo").onclick=function(){ paStart("demo"); };
   document.getElementById("pa-go").onclick=function(){ paStart("go"); };
@@ -1991,7 +2036,8 @@ function paStaffBuild(){
   var s='<svg class="staff pa-st" viewBox="0 0 '+Wv+' '+Hv+'" preserveAspectRatio="xMinYMid meet"><defs><clipPath id="pa-clip"><rect x="'+(ox+62)+'" y="0" width="'+(Wv-ox-62)+'" height="'+Hv+'"/></clipPath></defs>';
   for(var i=0;i<5;i++){ s+='<line class="sl" x1="'+ox+'" x2="'+(Wv-2)+'" y1="'+(T0+i*SS)+'" y2="'+(T0+i*SS)+'"/><line class="sl" x1="'+ox+'" x2="'+(Wv-2)+'" y1="'+(B0+i*SS)+'" y2="'+(B0+i*SS)+'"/>'; }
   s+='<line class="sl" x1="'+ox+'" x2="'+ox+'" y1="'+T0+'" y2="'+(B0+4*SS)+'"/>'+gly("brace",2,B0+4*SS,(B0+4*SS-T0)/(4*SS),"gb")+gly("gClef",ox+6,T0+3*SS,1,"gc")+gly("fClef",ox+6,B0+SS,1,"gc");
-  s+='<text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+17)+'">'+(G.meter*u>=1?Math.round(G.meter*u*(u<1?2:1)):G.meter)+'</text><text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+37)+'">'+(u<1?8:4)+'</text>';
+  var tsN=G.meter*u, tsD=4; if(u<1){ tsN=G.meter; tsD=8; } if(tsN%1){ tsN*=4; tsD=16; }
+  s+='<text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+17)+'">'+tsN+'</text><text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+37)+'">'+tsD+'</text>';
   s+='<rect class="pa-head" x="'+(PX-3)+'" y="'+(T0-16)+'" width="'+(SPX*0.9+6)+'" height="'+(B0+4*SS-T0+32)+'" rx="6"/>';
   s+='<g clip-path="url(#pa-clip)"><g id="pa-mv">';
   G.bars.forEach(function(b){ if(b<=1e-6) return; var x=b*SPX-8; s+='<line class="sl bar" x1="'+x+'" x2="'+x+'" y1="'+T0+'" y2="'+(B0+4*SS)+'"/>'; });
@@ -2026,7 +2072,7 @@ function paReset(t0){ PA.t=t0; PA.waiting=false; PA.tg=null; PA.lastKb=""; PA.G.
 function paRange(){ var G=PA.G; return PA.loop>=0?G.ph[PA.loop]:[0,G.tot]; }
 function paStart(mode){
   paStop(); if(!ensureAudio()) return; loadSamples(); var rg=paRange();
-  PA.mode=mode; PA.wrong=0; PA.pass=(PA.pass||0); PA.parts=[]; paReset(rg[0]-PA.G.meter); PA.mb=Math.ceil(PA.t-1e-6); PA.last=ac.currentTime; PA.t0=performance.now();
+  PA.mode=mode; PA.wrong=0; var scr=document.getElementById("pa-screen"); if(scr) scr.setAttribute("data-view",mode==="go"&&PA.challenge?"staff":PA.view); PA.chalRun=mode==="go"&&PA.challenge; PA.pass=(PA.pass||0); PA.parts=[]; paReset(rg[0]-PA.G.meter); PA.mb=Math.ceil(PA.t-1e-6); PA.last=ac.currentTime; PA.t0=performance.now();
   document.getElementById("pa-res").innerHTML=""; ["pa-demo","pa-go"].forEach(function(id){ document.getElementById(id).disabled=true; }); document.getElementById("pa-stop").disabled=false;
   if(mode==="go"){ paLive(L("جاي أشغّل المايك…","Starting the microphone…"));
     hearStart(function(f,rms){ paMic(f,rms); },function(m,down){ if(down) paInput(m,"midi"); },function(err,mic,midi){
@@ -2035,7 +2081,7 @@ function paStart(mode){
       PA.last=ac.currentTime; PA.raf=requestAnimationFrame(paTick); });
   } else { paLive(L("اسمع وتابع: كل نوتة تنزل على مفتاحها، ورقم الإصبع مكتوب بيها.","Listen and follow: each note falls onto its key, with the finger number written on it.")); PA.raf=requestAnimationFrame(paTick); }
 }
-function paStop(){ if(PA.again){ clearTimeout(PA.again); PA.again=0; } if(PA.raf) cancelAnimationFrame(PA.raf); PA.raf=0; var was=PA.mode; PA.mode=null; PA.waiting=false; if(was==="go") hearStop(); stopAllSound();
+function paStop(){ var scr0=document.getElementById("pa-screen"); if(scr0) scr0.setAttribute("data-view",PA.view); if(PA.again){ clearTimeout(PA.again); PA.again=0; } if(PA.raf) cancelAnimationFrame(PA.raf); PA.raf=0; var was=PA.mode; PA.mode=null; PA.waiting=false; if(was==="go") hearStop(); stopAllSound();
   ["pa-demo","pa-go"].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=false; }); var s=document.getElementById("pa-stop"); if(s) s.disabled=true; var hud=document.getElementById("pa-hud"); if(hud) hud.innerHTML=""; }
 function paNextTarget(){ var gs=PA.G.gs, rg=paRange(), at=null, out=[]; for(var i=0;i<gs.length;i++){ var g=gs[i]; if(g.at<rg[0]-1e-6||g.at>=rg[1]-1e-6||g.hit||!paPractised(g)) continue; if(at===null) at=g.at; if(Math.abs(g.at-at)<1e-6) out.push(g); else if(g.at>at) break; } return out.length?out:null; }
 function paSound(g,whenTail){ var bps=paBps(), pe=paPedEnd(g.at), dur=(pe?Math.max(g.at+g.b,pe)-g.at:g.b)/bps*0.97, v=DYNV[paDyn(g.at)]*(g.h==="L"?0.78:1)*(g.ms.length>2?0.8:1); g.ms.forEach(function(m,j){ playMidi(m,Math.max(0.12,dur),j*0.008,v); }); }
@@ -2055,7 +2101,7 @@ function paTick(){
   paFrame(); PA.raf=requestAnimationFrame(paTick);
 }
 function paFrame(){ paDraw(); paStaffMove();
-  var it=[], key=""; PA.G.gs.forEach(function(g){ var on=(PA.t>=g.at-1e-6&&PA.t<g.at+g.b-1e-3)||(PA.waiting&&PA.tg&&PA.tg.indexOf(g)>=0); if(!on) return; g.ms.forEach(function(m,j){ it.push({m:m,h:g.h,f:g.fs[j],spell:g.sp[j]}); key+=g.i+"."+j+","; }); });
+  var it=[], key=""; PA.G.gs.forEach(function(g){ if(PA.chalRun&&PA.mode==="go"&&paPractised(g)) return; var on=(PA.t>=g.at-1e-6&&PA.t<g.at+g.b-1e-3)||(PA.waiting&&PA.tg&&PA.tg.indexOf(g)>=0); if(!on) return; g.ms.forEach(function(m,j){ it.push({m:m,h:g.h,f:g.fs[j],spell:g.sp[j]}); key+=g.i+"."+j+","; }); });
   if(key!==PA.lastKb){ PA.lastKb=key; kbLight("kb-pa",it); } }
 function paWaitMsg(){ if(!PA.tg) return; var parts=[]; PA.tg.forEach(function(g){ g.sp.forEach(function(n,j){ if(!(g.got&&g.got[j])) parts.push('<span class="hand '+g.h+'">'+nmLong(n)+(g.fs[j]?' · '+L("إصبع ","finger ")+num(g.fs[j]):'')+'</span>'); }); });
   paLive('<b>'+L("دوس: ","Play: ")+'</b>'+parts.join(" + ")+'<div class="small">'+L("الموقع ينتظرك. المازورة ","Waiting for you. Bar ")+num(barOf(PA.G,PA.t+1e-3))+'</div>'); }
@@ -2087,17 +2133,17 @@ function paEnd(){
   var full=PA.loop<0, st=0, both=PA.hands==="both"||G.hs.length<2;
   if(PA.wait) st=1; else { if(acc>=60) st=1; if(acc>=80) st=2; if(both&&acc>=90&&PA.speed>=0.85) st=3; }
   var key=PA.opt.key||PA.p.id;
-  if(full){ progSet(key,st,acc); if(typeof accReport==="function") accReport(PA.opt.report||("piece:"+PA.p.id),acc,{hands:PA.hands,wait:PA.wait,speed:PA.speed,stars:st}); if(PA.opt.done) PA.opt.done(st,acc); } else dayMark();
+  var chOk=PA.chalRun&&!PA.wait&&acc>=80; if(full){ progSet(key,st,acc,chOk); if(typeof accReport==="function") accReport(PA.opt.report||("piece:"+PA.p.id),acc,{hands:PA.hands,wait:PA.wait,speed:PA.speed,stars:st}); if(PA.opt.done) PA.opt.done(st,acc); } else dayMark();
   /* where did it go wrong? suggest the part to loop */
   var worst=-1, wn=0; if(full&&!PA.wait) G.ph.forEach(function(x,i){ var n=gs.filter(function(g){ return g.miss&&g.at>=x[0]&&g.at<x[1]; }).length; if(n>wn){ wn=n; worst=i; } });
-  var msg=PA.wait?L("خلّصتها بوضع «ينتظرك». الخطوة الجاية: طفّي «ينتظرك» واعزفها ويه الإيقاع.","You finished it in “Wait for me” mode. Next: switch it off and play in time."):
+  var msg=chOk?L("نجحت بالتحدّي! عزفتها من النوتة بس، بلا مساعدة. ◆","Challenge passed! You played from the sheet alone. ◆"):PA.wait?L("خلّصتها بوضع «ينتظرك». الخطوة الجاية: طفّي «ينتظرك» واعزفها ويه الإيقاع.","You finished it in “Wait for me” mode. Next: switch it off and play in time."):
     acc>=90?L("عزف ممتاز!","Excellent playing!"):acc>=70?L("حلو! كمّل تمرين وترفع النتيجة.","Nice! A bit more practice will lift it."):L("ولا يهمك، بطّئ السرعة أو شغّل «ينتظرك».","No worries: slow it down or switch on “Wait for me”.");
   var h='<div class="pa-result"><div>'+starsHTML(st)+'<b class="pa-pct">'+num(Math.round(acc))+(lang==="ar"?"٪":"%")+'</b></div><div><p><b>'+msg+'</b></p><p class="small">'+L("النوتات الصح: ","Notes right: ")+num(hit)+' / '+num(tot)+(PA.wrong?' · '+L("نوتات غلط: ","Wrong notes: ")+num(PA.wrong):'')+(full?'':' · '+L("هذا تكرار مقطع، النجوم تنحسب ويه المقطوعة كاملة.","This was a loop; stars count on the whole piece."))+'</p>';
   if(worst>=0) h+='<button type="button" class="pill sm" id="pa-fix">'+L("تمرّن على المقطع ","Practise part ")+num(worst+1)+L(" (بيه أكثر غلط)"," (most misses)")+'</button>';
   h+='<p class="small" style="margin-top:6px">'+L("النجوم: ★ خلّصتها بوضع «ينتظرك» · ★★ إيد وحدة ويه الإيقاع ٨٠٪ · ★★★ الإيدين سوا ويه الإيقاع ٩٠٪ وبسرعة ٨٥٪ أو أكثر.","Stars: ★ finished in Wait mode · ★★ one hand in time at 80% · ★★★ both hands in time at 90% and 85% speed or more.")+'</p></div></div>';
   document.getElementById("pa-res").innerHTML=h; paLive("");
   var fx=document.getElementById("pa-fix"); if(fx) fx.onclick=function(){ paApply({h:PA.hands,sp:Math.max(0.5,PA.speed-0.15),w:false,lp:worst}); };
-  var bb=document.querySelector(".pa-best"); if(bb&&full) bb.innerHTML=starsHTML((progGet()[key]||{s:0}).s)+'<span class="small">'+L("أحسن نتيجة","Best")+'</span>';
+  var bb=document.querySelector(".pa-best"); if(bb&&full) bb.innerHTML=starsHTML((progGet()[key]||{s:0}).s,3,(progGet()[key]||{}).c)+'<span class="small">'+L("أحسن نتيجة","Best")+'</span>';
   if(!full){ PA.pass=(PA.pass||0)+1; var hb=document.getElementById("pa-res"); if(hb) hb.insertAdjacentHTML("beforeend",'<p class="small" style="margin-top:6px">'+L("يعيد المقطع بعد لحظات… اضغط «إيقاف» حتى توكف.","Looping again in a moment… press Stop to end.")+'</p>'); var again=mode; PA.again=setTimeout(function(){ PA.again=0; if(document.getElementById("pa")&&PA.loop>=0) paStart(again); },2600); document.getElementById("pa-stop").disabled=false; }
 }
 window.addEventListener("resize",function(){ if(document.getElementById("pa-cv")){ paLayout(); paFrame(); } });
@@ -2366,6 +2412,168 @@ function tqPhrase(k){ var S=tqSet(), ms=S.ms, seq;
   setTimeout(function(){ if(route()==="maqamat") tqGhost(); },t*1000+600); }
 function tqStop(){ TQ.drone=false; if(TQ.timer){ clearInterval(TQ.timer); TQ.timer=0; } if(TQ.mic){ hearStop(); TQ.mic=false; } var b=document.getElementById("tq-drone"); if(b){ b.setAttribute("aria-pressed","false"); b.textContent=L("شغّل الدرون","Start the drone"); } }
 
+/* ================= add your own piece: a MIDI or MusicXML file, a piano recording, or a link ================= */
+function ownGet(){ try{ return JSON.parse(localStorage.getItem("pa_own")||"[]")||[]; }catch(e){ return []; } }
+function ownSave(list){ try{ localStorage.setItem("pa_own",JSON.stringify(list.slice(-30))); }catch(e){} }
+/* evs: [{m, s, e, h?}] in beats (quarter notes) → a piece in the site's own format, both hands */
+function evsToPiece(evs,meta){
+  evs=evs.filter(function(x){ return x.m>=21&&x.m<=108&&x.e>x.s; });
+  if(!evs.length) throw new Error(L("ما لكيت نوتات بالملف.","No notes found in the file."));
+  var t0=Math.min.apply(null,evs.map(function(x){return x.s;})); t0=Math.floor(t0*4)/4;
+  evs.forEach(function(x){ x.s=Math.round((x.s-t0)*4)/4; x.e=Math.max(x.s+0.25,Math.round((x.e-t0)*4)/4); if(!x.h) x.h=x.m>=60?"R":"L"; });
+  var meter=meta.meter||4, end=Math.max.apply(null,evs.map(function(x){return x.e;}));
+  if(end>800) { evs=evs.filter(function(x){ return x.s<800; }); end=800; }
+  end=Math.ceil(end/meter-1e-6)*meter;
+  var blk=0, wht=0; evs.forEach(function(x){ var pc=x.m%12; if([1,3,8,10].indexOf(pc)>=0){ if(pc===10||pc===3||pc===8) blk++; else wht++; } }); var flat=blk>wht;
+  var line=function(h){ var xs=evs.filter(function(x){return x.h===h;}), by={}, toks=[], t=0;
+    xs.forEach(function(x){ (by[x.s]=by[x.s]||[]).push(x); });
+    var ss=Object.keys(by).map(Number).sort(function(a,b){return a-b;});
+    ss.forEach(function(s,i){ if(s<t-1e-6) return; if(s>t+1e-6) toks.push("r:"+(s-t)); var g=by[s], nx=i+1<ss.length?ss[i+1]:end, en=Math.max.apply(null,g.map(function(x){return x.e;})), d=Math.max(0.25,Math.min(en,nx)-s);
+      var ms=g.map(function(x){return x.m;}).filter(function(m,k,a){ return a.indexOf(m)===k; }).sort(function(a,b){return a-b;}); if(ms.length>4) ms=h==="R"?ms.slice(-4):ms.slice(0,4);
+      toks.push(ms.map(function(m){ return m2s(m,flat); }).join("+")+":"+d); t=s+d; });
+    if(end>t+1e-6) toks.push("r:"+(end-t)); return toks.join(" "); };
+  var rh=line("R"), lh=line("L");
+  if(!/[A-G]/.test(rh)&&/[A-G]/.test(lh)){ /* everything low: give it to the right hand */ evs.forEach(function(x){ x.h="R"; }); rh=line("R"); lh=""; }
+  var title=meta.title||L("مقطوعتي","My piece");
+  return {id:"own-"+Date.now().toString(36),own:1,stage:1,cat:"tune",t:[title,title],d:[meta.note||"مقطوعة ضفتها انت.",meta.noteEn||"A piece you added."],bpm:Math.max(40,Math.min(200,Math.round(meta.bpm||90))),meter:meter,unit:1,rh:rh,lh:lh,src:[meta.src||"",meta.srcEn||""]};
+}
+/* ---- Standard MIDI files ---- */
+function parseMidi(buf){
+  var d=new DataView(buf), p=0, str=function(n){ var s=""; for(var i=0;i<n;i++) s+=String.fromCharCode(d.getUint8(p+i)); return s; };
+  if(str(4)!=="MThd") throw new Error(L("هذا مو ملف MIDI.","Not a MIDI file.")); p=8; var ntr=d.getUint16(p+2), div=d.getUint16(p+4); p=14;
+  if(div&0x8000) throw new Error(L("نوع توقيت MIDI غير مدعوم.","Unsupported MIDI timing."));
+  var tracks=[], tempo=null, meter=null, title="";
+  for(var k=0;k<ntr&&p<d.byteLength;k++){
+    if(str(4)!=="MTrk"){ break; } var len=d.getUint32(p+4); p+=8; var end=p+len, tick=0, run=0, on={}, notes=[];
+    var vlq=function(){ var v=0, b; do{ b=d.getUint8(p++); v=(v<<7)|(b&0x7f); }while(b&0x80); return v; };
+    while(p<end){ tick+=vlq(); var st=d.getUint8(p); if(st&0x80){ p++; if(st<0xf0) run=st; } else st=run;
+      var ty=st&0xf0, ch=st&0x0f;
+      if(st===0xff){ var mt=d.getUint8(p++), ml=vlq();
+        if(mt===0x51&&tempo===null) tempo=60000000/((d.getUint8(p)<<16)|(d.getUint8(p+1)<<8)|d.getUint8(p+2));
+        if(mt===0x58&&meter===null) meter=d.getUint8(p)*4/Math.pow(2,d.getUint8(p+1));
+        if(mt===0x03&&!title){ for(var q=0;q<ml;q++) title+=String.fromCharCode(d.getUint8(p+q)); }
+        p+=ml; }
+      else if(st===0xf0||st===0xf7){ p+=vlq(); }
+      else if(ty===0x90||ty===0x80){ var nn=d.getUint8(p), vel=d.getUint8(p+1); p+=2; if(ch===9) continue; var key=ch+":"+nn;
+        if(ty===0x90&&vel>0) (on[key]=on[key]||[]).push(tick); else if(on[key]&&on[key].length){ var s0=on[key].shift(); notes.push({m:nn,s:s0/div,e:tick/div}); } }
+      else if(ty===0xc0||ty===0xd0) p+=1; else p+=2;
+    }
+    p=end; if(notes.length) tracks.push(notes);
+  }
+  if(!tracks.length) throw new Error(L("ما لكيت نوتات بالملف.","No notes found in the file."));
+  var evs=[]; if(tracks.length>=2){ var avg=tracks.map(function(t,i){ return {i:i,a:t.reduce(function(s,x){return s+x.m;},0)/t.length}; }).sort(function(a,b){return b.a-a.a;});
+    tracks.forEach(function(t,i){ var h=avg[0].i===i?"R":"L"; t.forEach(function(x){ x.h=h; evs.push(x); }); }); }
+  else evs=tracks[0];
+  return {evs:evs,bpm:tempo||100,meter:meter||4,title:title.replace(/[\x00-\x1f]/g,"").trim()};
+}
+/* ---- MusicXML (.musicxml / .xml, or compressed .mxl) ---- */
+function unzipFirstXml(buf){
+  var d=new DataView(buf), u8=new Uint8Array(buf), e=-1; for(var i=buf.byteLength-22;i>=0&&i>buf.byteLength-70000;i--) if(d.getUint32(i,true)===0x06054b50){ e=i; break; }
+  if(e<0) return Promise.reject(new Error(L("ملف mxl خربان.","Broken .mxl file.")));
+  var n=d.getUint16(e+10,true), off=d.getUint32(e+16,true), ents=[];
+  for(var k=0;k<n;k++){ var nl=d.getUint16(off+28,true), xl=d.getUint16(off+30,true), cl=d.getUint16(off+32,true), name=new TextDecoder().decode(u8.subarray(off+46,off+46+nl));
+    ents.push({name:name,method:d.getUint16(off+10,true),size:d.getUint32(off+20,true),loc:d.getUint32(off+42,true)}); off+=46+nl+xl+cl; }
+  var f=ents.filter(function(x){ return /\.(xml|musicxml)$/i.test(x.name)&&!/^META-INF/i.test(x.name); })[0]; if(!f) return Promise.reject(new Error(L("ما لكيت نوتة داخل الملف.","No score inside the file.")));
+  var lh=f.loc, start=lh+30+d.getUint16(lh+26,true)+d.getUint16(lh+28,true), data=u8.subarray(start,start+f.size);
+  if(f.method===0) return Promise.resolve(new TextDecoder().decode(data));
+  if(!window.DecompressionStream) return Promise.reject(new Error(L("المتصفح ما يفتح mxl، صدّرها MusicXML غير مضغوط.","This browser can’t open .mxl; export uncompressed MusicXML.")));
+  return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+}
+function parseMusicXml(txt){
+  var doc=new DOMParser().parseFromString(txt,"application/xml"); if(doc.getElementsByTagName("parsererror").length) throw new Error(L("ملف MusicXML ما ينقرا.","Unreadable MusicXML file."));
+  var parts=[].slice.call(doc.getElementsByTagName("part")), evs=[], bpm=null, meter=null, title="";
+  var tw=doc.querySelector("work-title")||doc.querySelector("movement-title"); if(tw) title=tw.textContent.trim();
+  var STEP={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  parts.forEach(function(part,pi){ var div=1, cur=0, last=0, ties={};
+    [].slice.call(part.getElementsByTagName("measure")).forEach(function(ms){ var mstart=cur;
+      [].slice.call(ms.children).forEach(function(el){ var tg=el.tagName;
+        if(tg==="attributes"){ var dv=el.querySelector("divisions"); if(dv) div=+dv.textContent||1; var tb=el.querySelector("time beats"), tt=el.querySelector("time beat-type"); if(tb&&tt&&meter===null) meter=(+tb.textContent)*4/(+tt.textContent); }
+        else if(tg==="direction"||tg==="sound"){ var sd=tg==="sound"?el:el.querySelector("sound"); if(sd&&sd.getAttribute("tempo")&&bpm===null) bpm=+sd.getAttribute("tempo"); }
+        else if(tg==="backup"){ cur-=(+el.querySelector("duration").textContent)/div; }
+        else if(tg==="forward"){ cur+=(+el.querySelector("duration").textContent)/div; }
+        else if(tg==="note"){ var du=el.querySelector("duration"), dur=du?(+du.textContent)/div:0, chord=!!el.querySelector("chord"), st=chord?last:cur;
+          if(!el.querySelector("grace")&&!el.querySelector("rest")&&el.querySelector("pitch")){ var pt=el.querySelector("pitch"), alt=pt.querySelector("alter");
+            var m=12*(+pt.querySelector("octave").textContent+1)+STEP[pt.querySelector("step").textContent.trim()]+(alt?Math.round(+alt.textContent*2)/2:0);
+            var sf=el.querySelector("staff"), h=parts.length>1?(pi===0?"R":"L"):(sf&&sf.textContent.trim()==="2"?"L":"R");
+            var tieS=el.querySelector('tie[type="stop"]'), tieB=el.querySelector('tie[type="start"]'), key=h+m;
+            if(tieS&&ties[key]){ ties[key].e=st+dur; if(!tieB) delete ties[key]; }
+            else { var ev={m:m,s:st,e:st+dur,h:h}; evs.push(ev); if(tieB) ties[key]=ev; } }
+          if(!chord){ last=cur; cur+=dur; } }
+      });
+    });
+  });
+  return {evs:evs,bpm:bpm||90,meter:meter||4,title:title};
+}
+/* ---- a piano recording → notes (Basic Pitch by Spotify, Apache-2.0, runs in the browser) ---- */
+var BPL={p:null};
+function bpLoad(){ if(BPL.p) return BPL.p; BPL.p=new Promise(function(res,rej){ var s=document.createElement("script"); s.src="media/bp/bp.js"; s.onload=function(){ res(window.BP); }; s.onerror=function(){ BPL.p=null; rej(new Error(L("ما گدرت أحمّل أداة التحويل.","Couldn’t load the transcriber."))); }; document.head.appendChild(s); }); return BPL.p; }
+function transcribe(file,prog){
+  ensureAudio();
+  return Promise.all([bpLoad(),file.arrayBuffer()]).then(function(r){ var BP=r[0];
+    return ac.decodeAudioData(r[1].slice(0)).then(function(buf){
+      var secs=Math.min(buf.duration,240), oc=new OfflineAudioContext(1,Math.ceil(secs*22050),22050), src=oc.createBufferSource(); src.buffer=buf; src.connect(oc.destination); src.start(0);
+      return oc.startRendering().then(function(mono){
+        var bp=new BP.BasicPitch(new URL("media/bp/model.json",location.href).href), fr=[], on=[], co=[];
+        return bp.evaluateModel(mono,function(f,o,c){ fr.push.apply(fr,f); on.push.apply(on,o); co.push.apply(co,c); },function(p){ prog(p); }).then(function(){
+          var ns=BP.noteFramesToTime(BP.addPitchBendsToNoteEvents(co,BP.outputToNotesPoly(fr,on,0.3,0.3,7)));
+          ns=ns.filter(function(n){ return n.amplitude>=0.22&&n.durationSeconds>=0.07; });
+          /* drop overtones: a higher note that starts with a stronger lower one an octave, a twelfth or two octaves below */
+          ns=ns.filter(function(n){ return !ns.some(function(o){ return o!==n&&Math.abs(o.startTimeSeconds-n.startTimeSeconds)<0.06&&[12,19,24,28,31].indexOf(n.pitchMidi-o.pitchMidi)>=0&&o.amplitude>=n.amplitude*0.7; }); });
+          var bpm=120; return {evs:ns.map(function(n){ return {m:n.pitchMidi,s:n.startTimeSeconds*bpm/60,e:(n.startTimeSeconds+n.durationSeconds)*bpm/60}; }),bpm:bpm,meter:4};
+        }); }); }); });
+}
+/* ---- the panel on the pieces page ---- */
+var IMP={mode:"file",busy:false};
+function impHTML(){
+  var h='<div class="imp-wrap"><button type="button" class="btn sec" id="imp-open">'+L("＋ أضف مقطوعتك","＋ Add your own piece")+'</button><div class="panel imp" id="imp" hidden>';
+  h+='<div class="big" style="font-size:1.15rem">'+L("أضف مقطوعة","Add a piece")+'</div><p class="small" style="margin-top:4px">'+L("حوّل أي مقطوعة لنوتات نازلة وأصابع وشرح، وتمرّن عليها هنا. تنحفظ عندك، وتوصل لصاحب الموقع حتى يقرر إذا يضيفها للمكتبة.","Turn any piece into falling notes, fingering and a lesson, and practise it here. It stays with you and goes to the site owner, who decides whether to add it to the library.")+'</p>';
+  h+=segHTML("imp-mode",[["file",L("ملف نوتة (MIDI / MusicXML)","Score file (MIDI / MusicXML)")],["audio",L("تسجيل بيانو","Piano recording")],["link",L("رابط بس (طلب)","Link only (request)")]],IMP.mode);
+  h+='<div class="imp-row"><input id="imp-title" maxlength="80" placeholder="'+L("اسم المقطوعة","Piece title")+'"><input id="imp-file" type="file"><input id="imp-link" class="ltr" type="url" placeholder="https://…"></div>';
+  h+='<p class="small" id="imp-help"></p><div class="btns"><button class="btn" type="button" id="imp-go">'+L("حوّلها","Convert")+'</button></div><div id="imp-msg" class="ex-live" aria-live="polite"></div></div></div>';
+  return h;
+}
+function impMode(){ var f=document.getElementById("imp-file"), l=document.getElementById("imp-link"), hp=document.getElementById("imp-help"), go=document.getElementById("imp-go"); if(!f) return;
+  f.hidden=IMP.mode==="link"; l.hidden=IMP.mode!=="link";
+  f.accept=IMP.mode==="audio"?"audio/*,.mp3,.wav,.m4a,.ogg,.flac":".mid,.midi,.musicxml,.xml,.mxl";
+  go.textContent=IMP.mode==="link"?L("دز الطلب","Send request"):L("حوّلها","Convert");
+  hp.innerHTML=IMP.mode==="file"?L("ملف MIDI أو MusicXML (من MuseScore مثلاً) يطلع <b>دقيق ١٠٠٪</b>. اليمنى واليسرى تنفصل وحدها.","A MIDI or MusicXML file (e.g. from MuseScore) comes out <b>100% accurate</b>. The hands are split for you."):
+    IMP.mode==="audio"?L("تسجيل <b>بيانو لوحده</b> (بلا غناء ولا طبل)، لحد ٤ دقايق. التحويل بالذكاء الاصطناعي داخل جهازك، والنتيجة <b>تقريبية</b>.","A recording of <b>solo piano</b> (no voice or drums), up to 4 minutes. AI transcription runs on your device and the result is <b>approximate</b>."):
+    L("حط رابط المقطوعة (يوتيوب مثلاً) واسمها، ويوصل طلبك لصاحب الموقع.","Paste the piece’s link (e.g. YouTube) and its title; your request goes to the site owner."); }
+function impMsg(t){ var e=document.getElementById("imp-msg"); if(e) e.innerHTML=t; }
+function impSubmit(p,source,link){
+  var title=p?p.t[0]:(document.getElementById("imp-title").value.trim()), data=p?JSON.parse(JSON.stringify(p)):null;
+  if(typeof ACC==="undefined") return Promise.resolve(false);
+  if(ACC.mode==="owner") return adm("/rest/v1/submissions",{title:title,source:source,link:link||null,data:data,by_owner:true}).then(function(){ return true; });
+  if(ACC.mode==="member") return rpc("member_submit",{p_code:accCode(),p_device:accDev(),p_title:title,p_source:source,p_link:link||"",p_data:data}).then(function(){ return true; });
+  return Promise.resolve(false);
+}
+function impGo(){
+  if(IMP.busy) return; var title=document.getElementById("imp-title").value.trim(), file=document.getElementById("imp-file").files[0], link=document.getElementById("imp-link").value.trim();
+  if(IMP.mode==="link"){ if(!title||!/^https?:\/\//.test(link)){ impMsg('<span class="rose">'+L("اكتب الاسم والرابط.","Enter a title and a link.")+'</span>'); return; }
+    IMP.busy=true; impMsg(L("جاي أدز الطلب…","Sending…"));
+    impSubmit(null,"link",link).then(function(ok){ impMsg(ok?'<b class="ok">'+L("وصل طلبك ✓ صاحب الموقع راح يشوفه.","Request sent ✓ The site owner will see it.")+'</b>':L("الطلبات تشتغل ويه الاشتراك.","Requests work with a membership.")); }).catch(function(e){ impMsg('<span class="rose">'+(typeof accErr==="function"?accErr(e.message):e.message)+'</span>'); }).then(function(){ IMP.busy=false; });
+    return; }
+  if(!file){ impMsg('<span class="rose">'+L("اختار ملف.","Choose a file.")+'</span>'); return; }
+  IMP.busy=true; impMsg(L("جاي أحوّل…","Converting…"));
+  var name=file.name.toLowerCase(), job;
+  if(IMP.mode==="audio") job=transcribe(file,function(pc){ impMsg(L("جاي أسمع التسجيل وأكتب النوتات… ","Listening and writing the notes… ")+num(Math.round(pc*100))+(lang==="ar"?"٪":"%")); }).then(function(r){ r.src="حُوّلت من تسجيل بالذكاء الاصطناعي، تقريبية."; r.srcEn="Transcribed from a recording by AI; approximate."; return r; });
+  else if(/\.midi?$/.test(name)) job=file.arrayBuffer().then(parseMidi);
+  else if(/\.mxl$/.test(name)) job=file.arrayBuffer().then(unzipFirstXml).then(parseMusicXml);
+  else job=file.text().then(parseMusicXml);
+  job.then(function(r){ var p=evsToPiece(r.evs,{title:title||r.title||file.name.replace(/\.[^.]+$/,""),bpm:r.bpm,meter:r.meter,src:r.src,srcEn:r.srcEn});
+      var list=ownGet(); list.push(p); ownSave(list); PR.id=p.id; PCF.cat="mine";
+      var src=IMP.mode==="audio"?"audio":/\.midi?$/.test(name)?"midi":"xml";
+      return impSubmit(p,src,null).catch(function(){ return false; }).then(function(sent){
+        var l=document.getElementById("pc-list"); if(l) l.innerHTML=pcListHTML(); document.querySelectorAll("[data-pcat]").forEach(function(x){ x.setAttribute("aria-pressed",x.getAttribute("data-pcat")==="mine"?"true":"false"); });
+        renderPiece(); impMsg('<b class="ok">'+L("جاهزة ✓ لكيتها تحت «مقطوعاتي»","Ready ✓ find it under “My pieces”")+'</b>'+(sent?' · '+L("ووصلت لصاحب الموقع.","and sent to the site owner."):''));
+        var pc=document.getElementById("pc-panel"); if(pc) pc.scrollIntoView({behavior:"smooth",block:"start"}); }); })
+   .catch(function(e){ impMsg('<span class="rose">'+e.message+'</span>'); }).then(function(){ IMP.busy=false; });
+}
+function impBind(){ var host=document.getElementById("pc-imp"); if(!host) return; host.innerHTML=impHTML();
+  document.getElementById("imp-open").onclick=function(){ var p=document.getElementById("imp"); p.hidden=!p.hidden; };
+  var sg=document.getElementById("imp-mode"); sg.onclick=function(e){ var b=e.target.closest("button"); if(!b) return; sg.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); IMP.mode=b.getAttribute("data-v"); impMode(); };
+  document.getElementById("imp-go").onclick=impGo; impMode(); }
+
 /* ================= tools: metronome + listener ================= */
 var MET={on:false,bpm:80,pat:"4",timer:0,next:0,step:0,tapT:[]}, LIS={on:false};
 var RHY={
@@ -2557,7 +2765,7 @@ function render(){
   if(gate==="ok"&&cur==="reading"){ rdNew(); document.getElementById("rd-skip").onclick=function(){ RD.streak=0; rdNew(); }; document.getElementById("rd-hint").onclick=function(){ if(RD.cur!==null){ kbLight("kb-quiz",[{m:RD.cur,h:"L"}]); playMidi(RD.cur,0.8); RD.streak=0; rdScore(); } }; document.getElementById("rd-mic").onclick=rdMic; }
   if(gate==="ok"&&cur==="chords"){ renderChord(); renderProg(); document.getElementById("pr-key").onchange=function(e){ CH.key=+e.target.value; chStop(); renderProg(); kbLight("kb-pr",[]); }; midiInit(); }
   if(gate==="ok"&&cur==="maqamat"){ renderMaqam(); midiInit(); LISTEN.free=function(m){ tqNote(m); }; }
-  if(gate==="ok"&&cur==="practice"&&document.getElementById("pc-panel")){ renderPiece(); midiInit(); }
+  if(gate==="ok"&&cur==="practice"&&document.getElementById("pc-panel")){ renderPiece(); midiInit(); var pq=document.getElementById("pc-q"); pq.oninput=function(){ PCF.q=pq.value; document.getElementById("pc-list").innerHTML=pcListHTML(); }; if(typeof impBind==="function") impBind(); }
   if(gate==="ok"&&cur==="warmup"){ renderWarmup(); midiInit(); }
   if(gate==="ok"&&cur==="ear"){ bindEar(); midiInit(); }
   if(gate==="ok"&&cur==="rhythms"){ renderRhythm(); midiInit(); }
@@ -2609,6 +2817,7 @@ document.addEventListener("click",function(e){
   if((b=e.target.closest("[data-mq]"))){ MQ.id=b.getAttribute("data-mq"); MQ.ton=null; renderMaqam(); return; }
   if((b=e.target.closest("[data-rr]"))){ RH.r=b.getAttribute("data-rr"); document.querySelectorAll("[data-rr]").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); paStop(); var rp=document.getElementById("rh-pa"); if(rp) rp.innerHTML=""; renderRhythm(); return; }
   if((b=e.target.closest("[data-rhh]"))){ RH.h=b.getAttribute("data-rhh"); RH.ton=null; document.querySelectorAll("[data-rhh]").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); paStop(); var rp2=document.getElementById("rh-pa"); if(rp2) rp2.innerHTML=""; renderRhythm(); return; }
+  if((b=e.target.closest("[data-pcat]"))){ PCF.cat=b.getAttribute("data-pcat"); document.querySelectorAll("[data-pcat]").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); document.getElementById("pc-list").innerHTML=pcListHTML(); return; }
   if((b=e.target.closest("[data-cert]"))){ certMake(+b.getAttribute("data-cert")); return; }
   if((b=e.target.closest("[data-pc]"))){ PR.id=b.getAttribute("data-pc"); PR.bpm=null; renderPiece(); return; }
   if((b=e.target.closest("[data-hd]"))){ PR.hands=b.getAttribute("data-hd"); renderPiece(); return; }
