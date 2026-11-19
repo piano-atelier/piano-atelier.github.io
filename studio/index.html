@@ -771,6 +771,7 @@ select:focus,input:focus{border-color:var(--gold)}
 .th-mn b{display:block;font-size:.9rem;opacity:.85}.th-mn span{display:block;font-size:1.25rem;margin:6px 0;color:#E2C48C}.th-mn em{font-style:normal;font-size:.8rem;opacity:.7}
 @media (max-width:640px){.th-two{grid-template-columns:1fr}.tr-row{grid-template-columns:70px 1fr}.tr-v{grid-column:1/-1}.tr-bar i{width:38px}}
 .pc-i .tag.full{margin-inline-start:6px;background:rgba(200,164,106,.18);color:#E2C48C}
+.pillars{grid-template-columns:repeat(3,1fr)}@media (max-width:980px){.pillars{grid-template-columns:repeat(2,1fr)}}@media (max-width:640px){.pillars{grid-template-columns:1fr}}
 
 
 .locked{max-width:620px;margin:10px auto;text-align:center;padding:42px 28px}
@@ -810,6 +811,8 @@ select:focus,input:focus{border-color:var(--gold)}
 .legal .panel{margin-bottom:14px}.legal h2{font-size:1.25rem;margin:0 0 8px}.legal ul{margin:0;padding-inline-start:20px;color:#D9CFC1;line-height:1.8}
 .btn.danger{color:#D08770;border-color:rgba(208,135,112,.45);margin-inline-start:auto}
 .btn.danger:hover{border-color:#D08770}
+
+.stg-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 4px}.stg-links .small{margin-inline-end:4px}.stg-links .pill.off{opacity:.45;cursor:default}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -1211,7 +1214,7 @@ var IS_STUDIO=true;
 
 /* ================= access: visitor / member / owner ================= */
 var SUPA={url:"https://xieotxguhsniiflhkntn.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZW90eGd1aHNuaWlmbGhrbnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTM2NDQsImV4cCI6MjExMDU2OTY0NH0.sPnsXcCOT9jJgDuR8v9BCrSgMZYJAAfSfkMvMqfg740"};
-var ROUTE_STAGE={start:0,instrument:0,keyboard:0,course:0,basics:1,theory:1,tools:1,glossary:1,practice:1,warmup:1,ear:1,rhythms:3,reading:2,chords:3,maqamat:4,admin:9};
+var ROUTE_STAGE={start:0,instrument:0,keyboard:0,course:0,basics:1,theory:0,tools:1,glossary:1,practice:1,warmup:1,ear:1,rhythms:3,reading:2,chords:3,maqamat:4,admin:9};
 var MQ_STAGE={ajam:4,nahawand:4,kurd:4,hijaz:4,nikriz:4,rast:5,bayati:5,saba:5,sikah:5};
 var STAGES=[
  {n:1,t:["البداية","First steps"],d:["الجلسة، أرقام الأصابع، وضعية دو، وأول ألحان بالإيدين، ويه المترونوم","Posture, finger numbers, C position and first tunes with both hands, plus the metronome"],test:[60,62,64,65,67,65,64,62,60,64,67,65,64,62,60]},
@@ -1335,6 +1338,13 @@ function flMic(){
 }
 
 /* ---- my course ---- */
+var STAGE_LINKS={
+ 1:[["theory","الموسيقى من الصفر","Music from zero"],["basics","الجلسة والأصابع","Posture & fingers"],["warmup","تمرين اليوم","Daily warm-up"],["ear","الأذن: المسافات","Ear: intervals"]],
+ 2:[["reading","قراءة النوتة","Reading music"],["warmup","تمرين اليوم: السلالم","Daily: scales"],["ear","الأذن: ماجور وماينر","Ear: major & minor"],["tools","المترونوم","Metronome"]],
+ 3:[["chords","الكوردات","Chords"],["rhythms","ألبرتي والفالس","Alberti & waltz"],["warmup","تمرين اليوم: الأربيجيو","Daily: arpeggios"],["ear","الأذن: الكوردات","Ear: chords"]],
+ 4:[["maqamat","المقامات","Maqams"],["rhythms","المقسوم والجورجينا","Maqsum & Jurjina"],["ear","الأذن: الأجناس","Ear: ajnas"],["warmup","تمرين اليوم: جنس اليوم","Daily: today’s jins"]],
+ 5:[["maqamat","التقاسيم","Taqasim"],["rhythms","كل الإيقاعات","All rhythms"],["ear","الأذن: كل التمارين","Ear: everything"],["practice","المقطوعات الكاملة","Complete pieces"]]
+};
 function vCourse(){
   var h=pageHead("course",L("مسيرتي","My course"),L("الدورة خمس مراحل. كل مرحلة تنفتح ويه الاشتراك الشهري، بيها مقطوعات وتمارين بالإيدين يسمعك بيها الموقع، وبآخرها اختبار.","The course has five stages. Each opens with the monthly membership, with two-hand pieces and exercises the site listens to, and ends with a test."));
   var st=ACC.mode==="owner"?5:(ACC.mode==="member"?ACC.realStage:0);
@@ -1353,6 +1363,7 @@ function vCourse(){
     var best=ACC.results.filter(function(r){return r.item==="test:stage"+s.n;}).reduce(function(a,r){return Math.max(a,+r.score);},-1);
     var les=open?PIECES.filter(function(d){return d.stage===s.n;}):[];
     var x='<div class="stg '+state+'"><span class="sn">'+(state==="closed"&&!open?lockIcon(16):num(s.n))+'</span><div><b>'+L(s.t[0],s.t[1])+'</b><span class="d">'+L(s.d[0],s.d[1])+'</span>'+(best>=0?'<span class="small '+(best>=80?'ok':'rose')+'">'+L("أعلى درجة بالاختبار: ","Best test score: ")+num(best)+'</span>':'')+'</div>'+(open?'<button class="btn sec" type="button" data-stest="'+s.n+'">'+L("الاختبار","Test")+'</button>':'');
+    var lk=STAGE_LINKS[s.n]||[]; if(lk.length) x+='<div class="stg-links"><span class="small">'+L("تمارين المرحلة:","Stage practice:")+'</span>'+lk.map(function(k){ var ok=canSee(k[0]); return ok?'<a class="pill sm" href="#'+k[0]+'">'+L(k[1],k[2])+'</a>':'<span class="pill sm off">'+lockIcon(11)+' '+L(k[1],k[2])+'</span>'; }).join("")+'</div>';
     if(les.length) x+='<div class="les-row">'+les.map(function(d){ return '<button type="button" class="les'+(d.cat==="drill"?' drill':'')+(got["piece:"+d.id]?' got':'')+'" data-les="'+d.id+'"><span>'+(d.cat==="drill"?'◎':'♪')+'</span>'+L(d.t[0],d.t[1])+'</button>'; }).join("")+'</div>';
     return x+'</div>';
   }).join("")+'</div>';
@@ -1569,13 +1580,15 @@ function vStart(){
   h+='<div class="wrapx st-after">';
   h+='<div class="home-kb"><div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:14px"><div><div class="overline">'+L("جرّبه هسه","Try it now")+'</div><h2 style="font-size:clamp(1.5rem,2.6vw,2rem);margin-top:6px">'+L("دوس أي مفتاح","Press any key")+'</h2></div><span class="small">'+L("صوت بيانو كبير حقيقي، مسجّل نوتة نوتة","A real grand piano, recorded note by note")+'</span></div>'+kbHTML("kb-home",48,84)+'</div>';
   h+='<div class="pillars">';
-  [["1","#keyboard",L("المفاتيح تضوي","Keys that light up"),L("كل نوتة وكل كورد يضوّي على لوحة مفاتيح حقيقية، ويه رقم الإصبع لكل إيد.","Every note and chord lights up on a real keyboard, with the finger number for each hand."),L("افتح لوحة المفاتيح","Open the keyboard")],
-   ["2","#reading",L("اقرا النوتة","Read the notes"),L("مفتاح صول ومفتاح فا خطوة خطوة، ويه لعبة تقرا بيها النوتة وتعزفها.","Treble and bass clef step by step, with a game where you read a note and play it."),L("ابدأ القراءة","Start reading")],
-   ["3","#chords",L("كوردات ومقامات","Chords & maqams"),L("الكوردات بقلباتها، والمقامات العربية تسمعها على بيانو، حتى اللي بيها أرباع.","Chords in every inversion, and Arabic maqams heard on a piano, quarter tones included."),L("شوف الكوردات","See the chords")],
-   ["4","#practice",L("الموقع يسمعك","The site listens"),L("اعزف على بيانوك، والموقع يسمعك بالمايك أو بكيبل MIDI ويتابعك نوتة نوتة.","Play your own piano and the site follows you note by note, through the mic or a MIDI cable."),L("افتح المقطوعات","Open the pieces")]
+  [["1","#theory",L("الموسيقى من الصفر","Music from zero"),L("تون ونص تون وربع، ماجور وماينر ومنين إجت أسماءهم: كل شي بأمثلة تسمعها وتشوفها. مفتوح ببلاش.","Tones, semitones and quarter tones, major and minor and where their names come from, all with examples you hear and see. Free."),L("ابدي ببلاش","Start free")],
+   ["2","#practice",L("اعزف ويه النوتة النازلة","Play along, notes falling"),L("النوتات تنزل على المفاتيح ويه أرقام الأصابع، والموقع يسمعك بالمايك أو MIDI وينتظرك لحد ما تعزف صح.","Notes fall onto the keys with finger numbers; the site listens through the mic or MIDI and waits until you play it right."),L("افتح المقطوعات","Open the pieces")],
+   ["3","#practice",L("مقطوعات كاملة","Complete pieces"),L("إلى إليزا، ضوء القمر، المارش التركي، باخ وشوبان وديبوسي: كاملات من النوتة الأصلية، ويه مقاطع للمبتدئ.","Für Elise, the Moonlight Sonata, the Turkish March, Bach, Chopin and Debussy, complete from the original scores, plus beginner excerpts."),L("شوف المكتبة","See the library")],
+   ["4","#reading",L("اقرا النوتة صح","Really read music"),L("المدرّج خط خط، الوقت والعد، والإشارات، ومثال كامل نقراه سوا، ولعبة القراءة.","The staff line by line, time and counting, signs, a full worked example, and the reading game."),L("ابدأ القراءة","Start reading")],
+   ["5","#maqamat",L("مقامات وإيقاعات عراقية","Maqams & Iraqi rhythms"),L("المقامات بأرباعها الحقيقية، تقاسيم، واليسرى على المقسوم والجورجينا والوحدة.","Maqams with true quarter tones, taqasim, and a left hand on Maqsum, Jurjina and Wahda."),L("اسمع المقامات","Hear the maqams")],
+   ["6","#ear",L("أذن وتمرين يومي","Ear & daily practice"),L("تدريب الأذن على المسافات والكوردات والأجناس، وتسخين جديد كل يوم، ونجوم وشهادات.","Ear training on intervals, chords and ajnas, a new warm-up every day, stars and certificates."),L("درّب أذنك","Train your ear")]
   ].forEach(function(p){ h+='<a class="pillar" href="'+p[1]+'"><span class="ic">'+num(p[0])+'</span><h3>'+p[2]+'</h3><p>'+p[3]+'</p><span class="go">'+p[4]+(lang==="ar"?' ←':' →')+'</span></a>'; });
   h+='</div>';
-  h+='<div class="stats"><div><b>'+num(88)+'</b><span>'+L("مفتاح بصوت بيانو حقيقي","keys with a real piano sound")+'</span></div><div><b>'+num(2)+'</b><span>'+L("مفتاح: صول وفا","clefs: treble and bass")+'</span></div><div><b>'+num(CH_TYPES.length*12)+'</b><span>'+L("كورد بقلباتها","chords, every inversion")+'</span></div><div><b>'+num(MAQAM.length)+'</b><span>'+L("مقامات تنعزف وتنسمع","maqams to play and hear")+'</span></div></div>';
+  h+='<div class="stats"><div><b>'+num(60)+'+</b><span>'+L("مقطوعة وتمرين، منها ١٧ كاملة","pieces & exercises, 17 complete")+'</span></div><div><b>'+num(MAQAM.length)+'</b><span>'+L("مقامات بأرباعها الحقيقية","maqams with true quarter tones")+'</span></div><div><b>'+num(CH_TYPES.length*12)+'</b><span>'+L("كورد بقلباتها","chords, every inversion")+'</span></div><div><b>'+num(5)+'</b><span>'+L("مراحل، وبآخر كل وحدة اختبار","stages, each ending in a test")+'</span></div></div>';
   h+='<div class="cta-band"><div><h2>'+L("ما عندك بيانو بعد؟","No piano yet?")+'</h2><p class="muted" style="margin-top:6px">'+L("ابدي بلوحة المفاتيح اللي بالموقع، وكيبورد الكمبيوتر يعزف وياك. ومن تشتري بيانو رقمي، اربطه وخلّي الموقع يسمعك.","Start on the site’s keyboard; your computer keys play too. When you get a digital piano, connect it and let the site listen.")+'</p></div><a class="btn" href="#keyboard">'+L("افتح لوحة المفاتيح","Open the keyboard")+'</a></div>';
   h+='</div>';
   return h;
@@ -2085,7 +2098,7 @@ function paStaffBuild(){
   var s='<svg class="staff pa-st" viewBox="0 0 '+Wv+' '+Hv+'" preserveAspectRatio="xMinYMid meet"><defs><clipPath id="pa-clip"><rect x="'+(ox+62)+'" y="0" width="'+(Wv-ox-62)+'" height="'+Hv+'"/></clipPath></defs>';
   for(var i=0;i<5;i++){ s+='<line class="sl" x1="'+ox+'" x2="'+(Wv-2)+'" y1="'+(T0+i*SS)+'" y2="'+(T0+i*SS)+'"/><line class="sl" x1="'+ox+'" x2="'+(Wv-2)+'" y1="'+(B0+i*SS)+'" y2="'+(B0+i*SS)+'"/>'; }
   s+='<line class="sl" x1="'+ox+'" x2="'+ox+'" y1="'+T0+'" y2="'+(B0+4*SS)+'"/>'+gly("brace",2,B0+4*SS,(B0+4*SS-T0)/(4*SS),"gb")+gly("gClef",ox+6,T0+3*SS,1,"gc")+gly("fClef",ox+6,B0+SS,1,"gc");
-  var tsN=G.meter*u, tsD=4; if(u<1){ tsN=G.meter; tsD=8; } if(tsN%1){ tsN*=4; tsD=16; }
+  var tsN=G.meter*u, tsD=4; if(u<1){ tsN=G.meter; tsD=8; } if(tsN%1){ tsN*=4; tsD=16; } if(p.ts){ var tsp=String(p.ts).split("/"); tsN=tsp[0]; tsD=tsp[1]; }
   s+='<text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+17)+'">'+tsN+'</text><text class="pa-meter" x="'+(ox+44)+'" y="'+(T0+37)+'">'+tsD+'</text>';
   s+='<rect class="pa-head" x="'+(PX-3)+'" y="'+(T0-16)+'" width="'+(SPX*0.9+6)+'" height="'+(B0+4*SS-T0+32)+'" rx="6"/>';
   s+='<g clip-path="url(#pa-clip)"><g id="pa-mv">';
