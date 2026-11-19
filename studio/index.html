@@ -770,6 +770,7 @@ select:focus,input:focus{border-color:var(--gold)}
 .th-mn{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
 .th-mn b{display:block;font-size:.9rem;opacity:.85}.th-mn span{display:block;font-size:1.25rem;margin:6px 0;color:#E2C48C}.th-mn em{font-style:normal;font-size:.8rem;opacity:.7}
 @media (max-width:640px){.th-two{grid-template-columns:1fr}.tr-row{grid-template-columns:70px 1fr}.tr-v{grid-column:1/-1}.tr-bar i{width:38px}}
+.pc-i .tag.full{margin-inline-start:6px;background:rgba(200,164,106,.18);color:#E2C48C}
 
 
 .locked{max-width:620px;margin:10px auto;text-align:center;padding:42px 28px}
@@ -1889,13 +1890,13 @@ function prData(p){
 }
 var CAT={drill:["تمرين","Exercise"],tune:["لحن","Tune"],classic:["كلاسيك","Classical"],chords:["كوردات","Chords"],maqam:["مقام","Maqam"]};
 var PCF={cat:"all",q:""};
-var PCATS=[["all",["الكل","All"]],["new",["جديد بالمكتبة","New in library"]],["drill",["تمارين","Exercises"]],["tune",["ألحان","Tunes"]],["classic",["كلاسيك","Classical"]],["chords",["كوردات","Chords"]],["maqam",["مقامات","Maqams"]],["mine",["مقطوعاتي","My pieces"]]];
-function pcMatch(p){ if(PCF.cat==="new"&&!p.lib) return false; if(PCF.cat==="mine"&&!p.own) return false; if(["all","new","mine"].indexOf(PCF.cat)<0&&p.cat!==PCF.cat) return false;
+var PCATS=[["all",["الكل","All"]],["new",["جديد بالمكتبة","New in library"]],["drill",["تمارين","Exercises"]],["tune",["ألحان","Tunes"]],["full",["كاملة","Complete"]],["classic",["كلاسيك","Classical"]],["chords",["كوردات","Chords"]],["maqam",["مقامات","Maqams"]],["mine",["مقطوعاتي","My pieces"]]];
+function pcMatch(p){ if(PCF.cat==="new"&&!p.lib) return false; if(PCF.cat==="mine"&&!p.own) return false; if(PCF.cat==="full"){ if(!p.full) return false; } else if(["all","new","mine"].indexOf(PCF.cat)<0&&p.cat!==PCF.cat) return false;
   if(PCF.q){ var q=PCF.q.toLowerCase(); if((p.t[0]+" "+p.t[1]).toLowerCase().indexOf(q)<0) return false; } return true; }
 function pcListHTML(){ var ps=prPieces().filter(pcMatch), PG=progGet(), h='', st=-1;
   if(!ps.length) return '<p class="small">'+L("ماكو مقطوعات بهذا البحث.","No pieces match.")+'</p>';
   ps.forEach(function(p){ var sk=p.own?"mine":p.stage; if(sk!==st){ st=sk; h+='<div class="pc-st">'+(p.own?L("مقطوعاتي","My pieces"):L("المرحلة ","Stage ")+num(p.stage))+'</div>'; }
-    var open=prOpen(p), g=PG[p.id]||{}; h+='<button type="button" class="pc-i'+(open?'':' lk')+'" data-pc="'+p.id+'" aria-pressed="'+(p.id===PR.id)+'"'+(open?'':' disabled')+'><span class="tag">'+L((CAT[p.cat]||CAT.tune)[0],(CAT[p.cat]||CAT.tune)[1])+'</span>'+L(p.t[0],p.t[1])+(g.s||g.c?starsHTML(g.s||0,3,g.c):'')+'</button>'; });
+    var open=prOpen(p), g=PG[p.id]||{}; h+='<button type="button" class="pc-i'+(open?'':' lk')+'" data-pc="'+p.id+'" aria-pressed="'+(p.id===PR.id)+'"'+(open?'':' disabled')+'><span class="tag">'+L((CAT[p.cat]||CAT.tune)[0],(CAT[p.cat]||CAT.tune)[1])+'</span>'+L(p.t[0],p.t[1])+(p.full?'<span class="tag full">'+L("كاملة","complete")+'</span>':'')+(g.s||g.c?starsHTML(g.s||0,3,g.c):'')+'</button>'; });
   return h; }
 function vPractice(){
   var h=pageHead("practice",L("مقطوعات وتمارين","Pieces & exercises"),L("مكتبة مقطوعات بالإيدين: تسمعها بصوت بيانو حقيقي، وتشوفها نازلة على المفاتيح ومكتوبة بالنوتة، وتعزفها والموقع يسمعك نوتة نوتة.","A library of two-hand pieces: hear them on a real piano, watch them fall onto the keys and on the sheet, then play while the site listens note by note."));
