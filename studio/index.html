@@ -735,6 +735,41 @@ select:focus,input:focus{border-color:var(--gold)}
 .stars .medal{color:var(--gold);font-size:.85em;margin-inline-start:4px}
 .pill.chal[aria-pressed="true"]{background:var(--gold);color:var(--ebony);border-color:var(--gold)}
 .adm-act input{padding:7px 10px;min-width:160px}
+/* ===== music from zero ===== */
+.staff .tsig{font:700 19px var(--display,serif);fill:#1A1612;text-anchor:start}
+.staff .slab{font:600 10px var(--body);fill:#6B5B48;text-anchor:middle}
+.staff .bar{stroke:#6B5B48;stroke-width:1.2}
+.staff .sg.now .gn,.staff .sg.now .ga{fill:#B8862F}.staff .sg.now .stem{stroke:#B8862F}
+.th-say{min-height:1.6em;margin:10px 0 0;color:var(--champ,#C8A46A);font-size:.98rem}
+.th-h{font-size:1.12rem;margin:22px 0 8px;color:var(--champ,#C8A46A)}
+.th-note{margin:14px 0;padding:12px 16px;border-inline-start:3px solid var(--champ,#C8A46A);background:rgba(200,164,106,.07);border-radius:8px;font-size:.95rem;line-height:1.8}
+.th-ex{margin:14px 0;padding:14px 16px;border:1px solid rgba(200,164,106,.28);border-radius:12px;background:rgba(255,255,255,.02)}
+.th-ex b{display:inline-block;margin-inline-start:8px;font-size:1.02rem}.th-ex p{margin-top:8px;line-height:1.85}
+.th-check{margin-top:18px;padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.18)}
+.th-check h3{font-size:1rem;margin-bottom:8px}
+.th-check details{border-top:1px solid rgba(255,255,255,.07);padding:9px 0}
+.th-check summary{cursor:pointer;font-weight:500}.th-check details p{margin-top:6px;color:var(--champ,#C8A46A)}
+.th-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:10px 0 4px;direction:ltr;justify-content:center}
+
+.th-steps b{padding:5px 9px;border-radius:8px;background:#F5EFE6;color:#1A1612;font-weight:600;font-size:.9rem}
+.th-steps i{font-style:normal;font-size:.78rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.th-steps i.t{background:rgba(200,164,106,.22);color:#E2C48C}.th-steps i.s{background:rgba(240,86,94,.2);color:#F0868C}.th-steps i.x{background:rgba(120,160,140,.25);color:#A8D0BC}
+.th-formula{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin:14px 0;padding:14px 18px;border-radius:12px;background:linear-gradient(135deg,rgba(200,164,106,.16),rgba(200,164,106,.04));border:1px solid rgba(200,164,106,.3)}
+.th-formula span{font-size:.85rem;opacity:.8}.th-formula b{font-size:1.5rem;letter-spacing:.12em;color:#E2C48C}.th-formula em{font-style:normal;font-size:.82rem;opacity:.7}
+.th-ruler{margin:12px 0 4px;display:grid;gap:8px}
+.tr-row{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center}
+.tr-lab{font-weight:600}.tr-v{font-size:.85rem;opacity:.75}
+.tr-bar{display:flex;gap:3px;height:16px}.tr-bar i{width:52px;border-radius:4px;background:#C8A46A}
+.tr-bar.s i{background:#F0868C}.tr-bar.q i{background:#A8D0BC}
+.th-tab td,.th-tab th{text-align:start}
+.th-ol li{margin:7px 0;line-height:1.8}
+.th-kind{padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.th-kind b{font-size:1.05rem;color:#E2C48C}.th-kind p{font-size:.9rem;margin:6px 0 10px;line-height:1.75}
+.th-quiz{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}.th-quiz .sep{flex:0 0 12px}
+.th-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.th-mn{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.th-mn b{display:block;font-size:.9rem;opacity:.85}.th-mn span{display:block;font-size:1.25rem;margin:6px 0;color:#E2C48C}.th-mn em{font-style:normal;font-size:.8rem;opacity:.7}
+@media (max-width:640px){.th-two{grid-template-columns:1fr}.tr-row{grid-template-columns:70px 1fr}.tr-v{grid-column:1/-1}.tr-bar i{width:38px}}
 
 
 .locked{max-width:620px;margin:10px auto;text-align:center;padding:42px 28px}
@@ -1001,9 +1036,15 @@ function staffSVG(opts){
   if(grand){ s+='<line class="sl" x1="'+ox+'" x2="'+ox+'" y1="'+T0+'" y2="'+(B0+4*SS)+'"/>'; s+=gly("brace",2,B0+4*SS,(B0+4*SS-T0)/(4*SS),"gb"); }
   if(cl!=="bass") s+=gly("gClef",ox+6,T0+3*SS,1,"gc");
   if(cl!=="treble") s+=gly("fClef",ox+6,B0+SS,1,"gc");
-  var x=ox+56, step=opts.groups.length>1?Math.max(28,(W-x-16)/opts.groups.length):0; if(!step) x=(ox+46+W)/2-6;
+  var x=ox+56;
+  /* key signature: [{n:spelled}] drawn after the clef on the treble staff */
+  if(opts.ks&&opts.ks.length){ opts.ks.forEach(function(k,i){ var d=dia(k.n), y=T0+4*SS-(d-30)*SS/2; s+=gly(k.n.a<0?"flat":"sharp",x-4+i*11,y,1,"ga ks"); }); x+=opts.ks.length*11+4; }
+  /* time signature, e.g. "4/4" */
+  if(opts.ts){ var tp=opts.ts.split("/"), ty=cl==="bass"?B0:T0; s+='<text class="tsig" x="'+(x+2)+'" y="'+(ty+2*SS-1)+'">'+tp[0]+'</text><text class="tsig" x="'+(x+2)+'" y="'+(ty+4*SS-1)+'">'+tp[1]+'</text>'; x+=26; }
+  var step=opts.groups.length>1?Math.max(28,(W-x-16)/opts.groups.length):0; if(!step) x=(ox+46+W)/2-6;
+  var bars=opts.bars||[];
   opts.groups.forEach(function(gr,gi){
-    var placed=[];
+    var placed=[]; s+='<g class="sg" data-gi="'+gi+'">';
     gr.notes.slice().sort(function(a,b){ return dia(a.n)-dia(b.n); }).forEach(function(nt){
       var d=dia(nt.n), tre=cl==="treble"||(cl==="grand"&&(nt.clef?nt.clef==="t":nt.m>=60));
       var ybot=tre?T0+4*SS:B0+4*SS, dref=tre?30:18, y=ybot-(d-dref)*SS/2, xx=x;
@@ -1020,7 +1061,10 @@ function staffSVG(opts){
       if(gr.dur!=="w"&&gr.stem!==false&&gr.notes.length===1){ var up=d<(dref+4); s+='<line class="stem '+(nt.cls||"")+'" x1="'+(up?xx+11.2:xx+0.6)+'" x2="'+(up?xx+11.2:xx+0.6)+'" y1="'+(y+(up?-1:1))+'" y2="'+(y+(up?-34:34))+'"/>'; }
       if(nt.f) s+='<text class="sf '+(nt.h||"")+'" x="'+(xx+(placed.length&&xx>x?34:24))+'" y="'+(y+4)+'">'+num(nt.f)+'</text>';
     });
+    s+='</g>';
+    if(gr.lab) s+='<text class="slab" x="'+(x+6)+'" y="'+(H-6)+'">'+gr.lab+'</text>';
     x+=step;
+    if(bars.indexOf(gi)>=0){ var bx=x-step/2+4, by1=cl==="bass"?B0:T0, by2=cl==="treble"?T0+4*SS:B0+4*SS; s+='<line class="sl bar" x1="'+bx+'" x2="'+bx+'" y1="'+by1+'" y2="'+by2+'"/>'; }
   });
   return s+'</svg>';
 }
@@ -1146,6 +1190,7 @@ var ROUTES=[
  {id:"instrument",t:["تعرّف على البيانو","Meet the piano"], d:["المطارق، الأوتار، الدواسات","Hammers, strings, pedals"]},
  {id:"keyboard",t:["لوحة المفاتيح","The keyboard"], d:["٨٨ مفتاح تعزفها هسه","88 keys to play right now"]},
  {id:"basics", t:["الجلسة والإيدين","Posture & hands"], d:["أرقام الأصابع ووضعية دو","Finger numbers, C position"]},
+ {id:"theory",t:["الموسيقى من الصفر","Music from zero"], d:["تون، نص، ربع، ماجور وماينر","Tones, semitones, major & minor"]},
  {id:"reading",t:["قراءة النوتة","Reading music"], d:["مفتاح صول ومفتاح فا","Treble and bass clefs"]},
  {id:"chords", t:["الكوردات","Chords"], d:["كل كورد بأصابع الإيدين","Every chord, both hands"]},
  {id:"maqamat",t:["المقامات على البيانو","Maqams on the piano"], d:["٩ مقامات تنعزف وتسمعها","Nine maqams to play and hear"]},
@@ -1165,7 +1210,7 @@ var IS_STUDIO=true;
 
 /* ================= access: visitor / member / owner ================= */
 var SUPA={url:"https://xieotxguhsniiflhkntn.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZW90eGd1aHNuaWlmbGhrbnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTM2NDQsImV4cCI6MjExMDU2OTY0NH0.sPnsXcCOT9jJgDuR8v9BCrSgMZYJAAfSfkMvMqfg740"};
-var ROUTE_STAGE={start:0,instrument:0,keyboard:0,course:0,basics:1,tools:1,glossary:1,practice:1,warmup:1,ear:1,rhythms:3,reading:2,chords:3,maqamat:4,admin:9};
+var ROUTE_STAGE={start:0,instrument:0,keyboard:0,course:0,basics:1,theory:1,tools:1,glossary:1,practice:1,warmup:1,ear:1,rhythms:3,reading:2,chords:3,maqamat:4,admin:9};
 var MQ_STAGE={ajam:4,nahawand:4,kurd:4,hijaz:4,nikriz:4,rast:5,bayati:5,saba:5,sikah:5};
 var STAGES=[
  {n:1,t:["البداية","First steps"],d:["الجلسة، أرقام الأصابع، وضعية دو، وأول ألحان بالإيدين، ويه المترونوم","Posture, finger numbers, C position and first tunes with both hands, plus the metronome"],test:[60,62,64,65,67,65,64,62,60,64,67,65,64,62,60]},
@@ -1630,7 +1675,8 @@ function vReading(){
   h+='<div class="block">'+blockHead(num(2),L("قيم النوتات","Note values"))+'<div class="vals">';
   [["w",4,L("مدوّرة","Whole")],["h",2,L("بيضاء","Half")],["q",1,L("سوداء","Quarter")]].forEach(function(v){ h+='<div class="card val">'+staffSVG({clef:"treble",groups:[{notes:[{n:sp(1,0,5),m:74}],dur:v[0]}],w:130})+'<b>'+v[2]+'</b><span class="small">'+num(v[1])+L(" ضربة"," beat"+(v[1]>1?"s":""))+'</span></div>'; });
   h+='<div class="card val"><div class="eighths" aria-hidden="true">♫</div><b>'+L("كروش","Eighths")+'</b><span class="small">'+L("نص ضربة","half a beat")+'</span></div></div><p class="small" style="margin-top:10px">'+L("والـ"+tm("timesig","ميزان")+" بأول المقطوعة يگلك كم "+tm("beat","ضربة")+" بكل "+tm("measure","مازورة")+".","The "+tm("timesig")+" at the start tells you how many "+tm("beat","beats")+" fill each "+tm("measure")+".")+'</p></div>';
-  h+='<div class="block">'+blockHead(num(3),L("لعبة القراءة","The reading game"),'<span class="tag rose" id="rd-score"></span>')+'<div class="card"><div class="row" style="justify-content:space-between;gap:10px"><div class="seg" id="rd-clef" role="group">'+[["treble",L("مفتاح صول","Treble")],["bass",L("مفتاح فا","Bass")],["grand",L("الاثنين","Both")]].map(function(c){ return '<button type="button" data-rc="'+c[0]+'" aria-pressed="'+(RD.clef===c[0])+'">'+c[1]+'</button>'; }).join("")+'</div><div class="btns" style="margin:0"><button class="btn sec" type="button" id="rd-mic">'+L("جاوب ببيانوك (مايك / MIDI)","Answer on your piano (mic / MIDI)")+'</button></div></div>';
+  h+=rdMoreHTML();
+  h+='<div class="block">'+blockHead(num(7),L("لعبة القراءة","The reading game"),'<span class="tag rose" id="rd-score"></span>')+'<div class="card"><div class="row" style="justify-content:space-between;gap:10px"><div class="seg" id="rd-clef" role="group">'+[["treble",L("مفتاح صول","Treble")],["bass",L("مفتاح فا","Bass")],["grand",L("الاثنين","Both")]].map(function(c){ return '<button type="button" data-rc="'+c[0]+'" aria-pressed="'+(RD.clef===c[0])+'">'+c[1]+'</button>'; }).join("")+'</div><div class="btns" style="margin:0"><button class="btn sec" type="button" id="rd-mic">'+L("جاوب ببيانوك (مايك / MIDI)","Answer on your piano (mic / MIDI)")+'</button></div></div>';
   h+='<div class="rd-q"><div id="rd-staff"></div><div><p class="big" id="rd-prompt" style="font-size:1.4rem">'+L("شنو هاي النوتة؟","What note is this?")+'</p><p class="small" id="rd-msg" aria-live="polite">'+L("دوس المفتاح الصح على اللوحة.","Tap the right key on the keyboard.")+'</p><div class="btns"><button class="btn sec" type="button" id="rd-hint">'+L("تلميح","Hint")+'</button><button class="btn sec" type="button" id="rd-skip">'+L("نوتة ثانية","Another note")+'</button></div></div></div>'+kbHTML("kb-quiz",36,84)+'</div></div>';
   return h+pager("reading");
 }
@@ -2576,6 +2622,261 @@ function impBind(){ var host=document.getElementById("pc-imp"); if(!host) return
   var sg=document.getElementById("imp-mode"); sg.onclick=function(e){ var b=e.target.closest("button"); if(!b) return; sg.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed",x===b?"true":"false"); }); IMP.mode=b.getAttribute("data-v"); impMode(); };
   document.getElementById("imp-go").onclick=impGo; impMode(); }
 
+/* ================= chapter: music from zero (theory for complete beginners) ================= */
+var TH={timers:[],q:null,score:0,n:0,last:null};
+function thStop(){ TH.timers.forEach(clearTimeout); TH.timers=[]; document.querySelectorAll(".staff .sg.now").forEach(function(g){ g.classList.remove("now"); }); }
+function thLater(fn,ms){ TH.timers.push(setTimeout(fn,ms)); }
+/* spell a scale from its root letter so every letter appears once (C D E F G A B / G A B C D E F♯ …) */
+function thSpell(rootL,ms){ var o0=Math.floor(ms[0]/12)-1; return ms.map(function(m,i){ var l=(rootL+i)%7, o=o0+Math.floor((rootL+i)/7), nat=12*(o+1)+NAT[l]; return sp(l,m-nat,o); }); }
+function thStaff(id,ms,rootL,opts){ opts=opts||{}; var sp0=thSpell(rootL,ms);
+  return '<div id="'+id+'">'+staffSVG({clef:opts.clef||"treble",ts:opts.ts,ks:opts.ks,bars:opts.bars,w:opts.w||Math.max(300,ms.length*44+90),groups:sp0.map(function(n,i){ return {notes:[{n:n,m:ms[i],cls:opts.hl&&opts.hl.indexOf(i)>=0?"hl":""}],dur:opts.dur||"q",lab:opts.labs?opts.labs[i]:""}; })})+'</div>'; }
+/* step chips between scale notes: ت = tone, ن = semitone */
+function thSteps(ms){ var h='<div class="th-steps">';
+  ms.forEach(function(m,i){ var n=spellMidi(m); if(i){ var d=m-ms[i-1]; h+='<i class="'+(d===1?"s":d===2?"t":"x")+'">'+(d===1?L("ن","S"):d===2?L("ت","T"):L("ت+ن","T+S"))+'</i>'; } h+='<b>'+nmShort(n)+'</b>'; });
+  return h+'</div>'; }
+/* play a list of notes one after another, lighting the keyboard and the staff together */
+function thPlay(kb,ms,o){ o=o||{}; thStop(); ensureAudio(); loadSamples(); var stp=o.step||520, fing=o.f||[], stf=o.staff?document.getElementById(o.staff):null;
+  ms.forEach(function(m,i){ thLater(function(){ playMidi(m,(o.hold||stp/1000)*0.95,0,0.85);
+      kbLight(kb,(o.keep?ms.slice(0,i+1):[m]).map(function(x,j){ var k=o.keep?j:i; return {m:x,h:o.h||"R",f:fing[k]}; }));
+      if(stf){ stf.querySelectorAll(".sg").forEach(function(g){ g.classList.toggle("now",+g.getAttribute("data-gi")===i); }); }
+      if(o.say) thSay(o.say,o.sayFn?o.sayFn(i):""); },i*stp); });
+  thLater(function(){ if(stf) stf.querySelectorAll(".sg.now").forEach(function(g){ g.classList.remove("now"); }); if(o.end) o.end(); },ms.length*stp+300); }
+function thChord(kb,ms,o){ o=o||{}; thStop(); ensureAudio(); loadSamples(); playChord(ms,1.6); kbLight(kb,ms.map(function(m,i){ return {m:m,h:o.h||"R",f:(o.f||[])[i]}; })); }
+function thSay(id,t){ var e=document.getElementById(id); if(e) e.innerHTML=t; }
+
+/* the demos every button can run: kb = keyboard, ms = notes, chord = all together */
+var THX={
+ hz:{kb:"kb-th0",ms:[45,57,69,81],step:900,say:"th-s0",txt:function(i){ return L("لا "+num(i+2)+" = <b dir=\"ltr\">"+[110,220,440,880][i]+" Hz</b>: كل أوكتاف لفوگ، الاهتزاز يتضاعف.","A"+(i+2)+" = <b>"+[110,220,440,880][i]+" Hz</b>: each octave up, the vibration doubles."); }},
+ low:{kb:"kb-th0",ms:[36,40,43],step:700,say:"th-s0",txt:function(){ return L("هاي نوتات <b>واطية (غليظة)</b>: الوتر طويل وثخين ويهتز ببطء.","These are <b>low</b> notes: long, thick strings vibrating slowly."); }},
+ high:{kb:"kb-th0",ms:[84,88,91],step:700,say:"th-s0",txt:function(){ return L("هاي نوتات <b>عالية (حادّة)</b>: الوتر قصير ورفيع ويهتز بسرعة.","These are <b>high</b> notes: short, thin strings vibrating fast."); }},
+ do7:{kb:"kb-th0",ms:[60,62,64,65,67,69,71,72],step:480,say:"th-s0",txt:function(i){ var n=spellMidi([60,62,64,65,67,69,71,72][i]); return L("<b>"+LAR[n.l]+"</b> = "+LET[n.l]+(i===7?"، ورجعنا لدو بس أعلى: هذا أوكتاف.":""),"<b>"+SOL[n.l]+"</b> = "+LET[n.l]+(i===7?": back to Do, one octave higher.":"")); }},
+ s1:{kb:"kb-th1",ms:[60,61],step:700,say:"th-s1",txt:function(i){ return i?L("دو ← دو♯: <b>نص تون</b>. من الأبيض للأسود اللي لازگه.","C → C♯: a <b>semitone</b>, white to the black right next to it."):L("دو…","C…"); }},
+ s2:{kb:"kb-th1",ms:[64,65],step:700,say:"th-s1",txt:function(i){ return i?L("مي ← فا: <b>نص تون</b> بين مفتاحين أبيض! ماكو أسود بيناتهم.","E → F: a <b>semitone</b> between two white keys! No black key between them."):L("مي…","E…"); }},
+ s3:{kb:"kb-th1",ms:[71,72],step:700,say:"th-s1",txt:function(i){ return i?L("سي ← دو: هم <b>نص تون</b>، نفس قصة مي وفا.","B → C: also a <b>semitone</b>, just like E and F."):L("سي…","B…"); }},
+ t1:{kb:"kb-th1",ms:[60,62],step:700,say:"th-s1",txt:function(i){ return i?L("دو ← ري: <b>تون كامل</b> = نص + نص. لاحظ الأسود اللي بالنص طفرناه.","C → D: a <b>whole tone</b> = semitone + semitone. Notice the black key we skipped."):L("دو…","C…"); }},
+ t2:{kb:"kb-th1",ms:[64,66],step:700,say:"th-s1",txt:function(i){ return i?L("مي ← فا♯: هم <b>تون</b>، بس هنا لازم نوصل للأسود لأن مي-فا بس نص.","E → F♯: also a <b>tone</b>; here we reach the black key, because E–F is only a semitone."):L("مي…","E…"); }},
+ chrom:{kb:"kb-th1",ms:[60,61,62,63,64,65,66,67,68,69,70,71,72],step:330,say:"th-s1",txt:function(i){ return L("نص تون رقم "+num(i)+" من ١٢. كل ١٢ نص تون = أوكتاف.","Semitone "+i+" of 12. Twelve semitones make an octave."); }},
+ q1:{kb:"kb-th1",ms:[64,63.5,63],step:950,say:"th-s1",txt:function(i){ return [L("مي (E): مفتاح أبيض.","E: a white key."),L("<b>مي نص بيمول (مي½♭)</b>: ربع تون أوطى. ما إله مفتاح! الموقع يعزفه بالضبط.","<b>E half-flat (E½♭)</b>: a quarter tone lower. It has no key! The site plays it exactly."),L("مي♭: نص تون أوطى من مي، وهذا إله مفتاح أسود.","E♭: a semitone below E, and this one has a black key.")][i]; }},
+ q2:{kb:"kb-th1",ms:[60,62,63.5,65,63.5,62,60],step:560,say:"th-s1",txt:function(i){ return i===2||i===4?L("هاي هي <b>مي½♭</b>: ربع التون اللي يعطي البياتي والراست طعمهم.","This is <b>E½♭</b>: the quarter tone that gives Bayati and Rast their flavour."):L("دو ري مي½♭ فا: بداية الراست.","C D E½♭ F: the start of Rast."); }},
+ enh:{kb:"kb-th1",ms:[61,61],step:900,say:"th-s1",txt:function(i){ return i?L("وهسه نسمّيه <b>ري♭</b> (ري بيمول): نفس المفتاح، بس شفناه من ري ونزلنا.","And now we call it <b>D♭</b>: the same key, seen from D going down."):L("هذا <b>دو♯</b> (دو دييز): شفناه من دو وصعدنا.","This is <b>C♯</b>: seen from C going up."); }},
+ cmaj:{kb:"kb-th2",ms:[60,62,64,65,67,69,71,72],step:520,staff:"th-st-cmaj",f:[1,2,3,1,2,3,4,5],say:"th-s2",txt:function(i){ return L("الدرجة "+num(i+1)+": "+["الأساس (القرار) دو","ري: تون","مي: تون","فا: <b>نص تون</b>","صول: تون","لا: تون","سي: تون","دو: <b>نص تون</b> ورجعنا للبيت"][i]+" · الإصبع "+num([1,2,3,1,2,3,4,5][i])+(i===3?" (الإبهام يعبر جوّا)":""),"Degree "+(i+1)+": "+["the root, C","D: tone","E: tone","F: <b>semitone</b>","G: tone","A: tone","B: tone","C: <b>semitone</b>, home again"][i]+" · finger "+[1,2,3,1,2,3,4,5][i]+(i===3?" (thumb passes under)":"")); }},
+ gmaj:{kb:"kb-th2",ms:[67,69,71,72,74,76,78,79],step:520,staff:"th-st-gmaj",f:[1,2,3,1,2,3,4,5],say:"th-s2",txt:function(i){ return i===6?L("<b>فا♯</b>! القاعدة تريد تون بعد مي، وبين مي وفا بس نص، فلازم نرفع فا.","<b>F♯</b>! The rule needs a tone after E, and E–F is only a semitone, so F must go up."):L("صول ماجور، الدرجة "+num(i+1),"G major, degree "+(i+1)); }},
+ cmajc:{kb:"kb-th2",ms:[60,64,67],chord:1,f:[1,3,5],say:"th-s2",txt:function(){ return L("<b>كورد دو ماجور</b> = الدرجة ١ و٣ و٥ سوا: دو مي صول. من دو لمي <b>٤ أنصاف تون</b>: ثالثة كبيرة.","<b>C major chord</b> = degrees 1, 3 and 5 together: C E G. C to E is <b>4 semitones</b>: a major third."); }},
+ third4:{kb:"kb-th2",ms:[60,61,62,63,64],step:420,keep:1,say:"th-s2",txt:function(i){ return i?L("نص تون رقم "+num(i)+(i===4?": وصلنا مي. <b>٤ أنصاف = ثالثة كبيرة (major)</b>":""),"Semitone "+i+(i===4?": E. <b>4 semitones = a major third</b>":"")):L("نبدي من دو ونعد…","Start on C and count…"); }},
+ amin:{kb:"kb-th3",ms:[57,59,60,62,64,65,67,69],step:520,staff:"th-st-amin",f:[1,2,3,1,2,3,4,5],say:"th-s3",txt:function(i){ return L("الدرجة "+num(i+1)+": "+["الأساس لا","سي: تون","دو: <b>نص تون</b> (هنا الحزن)","ري: تون","مي: تون","فا: <b>نص تون</b>","صول: تون","لا: تون"][i],"Degree "+(i+1)+": "+["the root, A","B: tone","C: <b>semitone</b> (here is the sadness)","D: tone","E: tone","F: <b>semitone</b>","G: tone","A: tone"][i]); }},
+ cmin:{kb:"kb-th3",ms:[60,62,63,65,67,68,70,72],step:520,staff:"th-st-cmin",f:[1,2,3,1,2,3,4,5],say:"th-s3",txt:function(i){ return [2,5,6].indexOf(i)>=0?L("<b>"+["","","مي♭","","","لا♭","سي♭"][i]+"</b>: نزلت نص تون عن دو ماجور.","<b>"+["","","E♭","","","A♭","B♭"][i]+"</b>: lowered a semitone from C major."):L("دو ماينر، الدرجة "+num(i+1),"C minor, degree "+(i+1)); }},
+ aminc:{kb:"kb-th3",ms:[57,60,64],chord:1,f:[1,3,5],say:"th-s3",txt:function(){ return L("<b>كورد لا ماينر</b>: لا دو مي. من لا لدو <b>٣ أنصاف تون</b> بس: ثالثة صغيرة.","<b>A minor chord</b>: A C E. A to C is only <b>3 semitones</b>: a minor third."); }},
+ third3:{kb:"kb-th3",ms:[57,58,59,60],step:420,keep:1,say:"th-s3",txt:function(i){ return i?L("نص تون رقم "+num(i)+(i===3?": وصلنا دو. <b>٣ أنصاف = ثالثة صغيرة (minor)</b>":""),"Semitone "+i+(i===3?": C. <b>3 semitones = a minor third</b>":"")):L("نبدي من لا ونعد…","Start on A and count…"); }},
+ aharm:{kb:"kb-th3",ms:[57,59,60,62,64,65,68,69],step:520,f:[1,2,3,1,2,3,4,5],say:"th-s3",txt:function(i){ return i===6?L("<b>صول♯</b>: رفعنا السابعة، فصارت تنجذب للا بقوة. هذا الهارموني، وطعمه شرقي (قريب من النهاوند).","<b>G♯</b>: the raised seventh pulls hard toward A. This is harmonic minor, with an eastern taste (close to Nahawand)."):L("لا ماينر هارموني، الدرجة "+num(i+1),"A harmonic minor, degree "+(i+1)); }},
+ amel:{kb:"kb-th3",ms:[57,59,60,62,64,66,68,69,67,65,64,62,60,59,57],step:430,f:[1,2,3,1,2,3,4,5,4,3,2,1,3,2,1],say:"th-s3",txt:function(i){ return i<8?(i===5||i===6?L("بالصعود: <b>"+(i===5?"فا♯":"صول♯")+"</b> مرفوعة.","Going up: <b>"+(i===5?"F♯":"G♯")+"</b> raised."):L("ميلودي صاعد","Melodic, going up")):L("بالنزول يرجع طبيعي: صول وفا بدون دييز.","Coming down it returns to natural: G and F without sharps."); }},
+ cmp1:{kb:"kb-th4",ms:[60,64,67],chord:1,f:[1,3,5],say:"th-s4",txt:function(){ return L("دو <b>ماجور</b>: مي طبيعية. مشرق.","C <b>major</b>: E natural. Bright."); }},
+ cmp2:{kb:"kb-th4",ms:[60,63,67],chord:1,f:[1,3,5],say:"th-s4",txt:function(){ return L("دو <b>ماينر</b>: بس مي نزلت لمي♭. سمعت شلون تغيّر الإحساس بنوتة وحدة؟","C <b>minor</b>: only E dropped to E♭. Hear how one note changed the feeling?"); }},
+ cmp3:{kb:"kb-th4",ms:[60,62,64,65,67,65,64,62,60],step:330,say:"th-s4",txt:function(){ return L("خمس نوتات <b>ماجور</b>: دو ري مي فا صول.","Five notes in <b>major</b>: C D E F G."); }},
+ cmp4:{kb:"kb-th4",ms:[60,62,63,65,67,65,63,62,60],step:330,say:"th-s4",txt:function(){ return L("نفس الشي <b>ماينر</b>: دو ري مي♭ فا صول.","The same in <b>minor</b>: C D E♭ F G."); }}
+};
+function thRun(k){ var x=THX[k]; if(!x) return;
+  if(x.chord){ thChord(x.kb,x.ms,{f:x.f}); thSay(x.say,x.txt()); return; }
+  thPlay(x.kb,x.ms,{step:x.step,f:x.f,staff:x.staff,keep:x.keep,say:x.say,sayFn:x.txt}); }
+function thBtn(k,label,sec){ return '<button class="btn'+(sec?' sec':'')+'" type="button" data-thx="'+k+'">▶ '+label+'</button>'; }
+function thNote(t){ return '<div class="th-note">'+t+'</div>'; }
+function thEx(title,body){ return '<div class="th-ex"><span class="tag">'+L("مثال","Example")+'</span><b>'+title+'</b><p>'+body+'</p></div>'; }
+function thCheck(qs){ return '<div class="th-check"><h3>'+L("اختبر نفسك","Check yourself")+'</h3>'+qs.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>'; }).join("")+'</div>'; }
+function thSayBox(id,t){ return '<p class="th-say" id="'+id+'" aria-live="polite">'+t+'</p>'; }
+
+function vTheory(){
+  var h=pageHead("theory",L("الموسيقى من الصفر","Music from zero"),L("هذا الفصل لواحد ما يعرف أي شي عن الموسيقى. نمشي خطوة خطوة: شنو النوتة، شنو التون ونص التون وربع التون، وشنو الماجور والماينر ومنين اجت أسماءهم. كل فكرة وياها مثال تسمعه وتشوفه يضوّي، وبآخر كل قسم أسئلة تختبر بيها نفسك.","This chapter is for someone who knows nothing about music. Step by step: what a note is, what tones, semitones and quarter tones are, and what major and minor mean and where their names come from. Every idea comes with an example you hear and see light up, and each part ends with questions to check yourself."));
+
+  /* 1 — what is a note */
+  h+='<div class="block">'+blockHead(num(1),L("شنو هي النوتة؟","What is a note?"))+'<div class="card">';
+  h+='<p>'+L("كل صوت تسمعه هو <b>اهتزاز</b>: شي يرجف بسرعة ويحرّك الهوا، والهوا يوصل لأذنك. بالبيانو، المطرقة تضرب الوتر فيرجف. الوتر اللي يرجف <b>بسرعة</b> يطلع صوت <b>عالي (حادّ)</b> مثل صوت العصفور، واللي يرجف <b>ببطء</b> يطلع صوت <b>واطي (غليظ)</b> مثل صوت الرعد.","Every sound is a <b>vibration</b>: something trembling fast and moving the air into your ear. In a piano, the hammer strikes a string and it trembles. A string trembling <b>fast</b> makes a <b>high</b> sound, like a bird; one trembling <b>slowly</b> makes a <b>low</b> sound, like thunder.")+'</p>';
+  h+='<p>'+L("<b>النوتة</b> = صوت بارتفاع ثابت ومعروف، وإله اسم. مثلاً النوتة «لا» اللي بنص البيانو ترجف <b dir=\"ltr\">440</b> مرة بالثانية (نكتبها <span dir=\"ltr\">440 Hz</span>، وHz يعني «مرة بالثانية»). العازفين بكل العالم يدوزنون آلاتهم عليها.","A <b>note</b> = a sound at one fixed, known height, with a name. For example, the A in the middle of the piano trembles <b>440</b> times a second (written 440 Hz; Hz means “per second”). Musicians all over the world tune to it.")+'</p>';
+  h+=kbHTML("kb-th0",36,96)+thSayBox("th-s0",L("دوس الأزرار وشوف وين يضوّي.","Press the buttons and watch where it lights."));
+  h+='<div class="btns">'+thBtn("low",L("اسمع نوتات واطية","Hear low notes"),1)+thBtn("high",L("اسمع نوتات عالية","Hear high notes"),1)+thBtn("hz",L("لا بأربع ارتفاعات","A at four heights"))+'</div>';
+  h+=thNote(L("<b>قاعدة تحفظها:</b> بالبيانو، كل ما رحت <b>يمين</b> الصوت يصعد (يصير أحدّ)، وكل ما رحت <b>يسار</b> ينزل (يصير أغلظ).","<b>A rule to keep:</b> on the piano, going <b>right</b> the sound goes up, going <b>left</b> it goes down."))+'</div></div>';
+
+  /* 2 — names and their origin */
+  h+='<div class="block">'+blockHead(num(2),L("أسماء النوتات ومنين إجت","Note names and where they came from"))+'<div class="card">';
+  h+='<p>'+L("بالموسيقى كلها <b>٧ أسماء بس</b>، وترجع تتكرر: <b>دو ري مي فا صول لا سي</b>، وبعد سي ترجع دو بس أعلى. بالإنكليزي نفس السبعة بالحروف: <b dir=\"ltr\">C D E F G A B</b>.","All of music uses <b>only 7 names</b>, repeating: <b>Do Re Mi Fa Sol La Si</b>, and after Si comes Do again, higher. In English the same seven are letters: <b>C D E F G A B</b>.")+'</p>';
+  h+='<div class="tablebox"><table class="compare th-tab"><thead><tr><th>'+L("بالعربي","Solfège")+'</th>'+LAR.map(function(x,i){ return '<td>'+(lang==="ar"?x:SOL[i])+'</td>'; }).join("")+'</tr></thead><tbody><tr><th>'+L("بالحروف","Letters")+'</th>'+LET.map(function(x){ return '<td dir="ltr">'+x+'</td>'; }).join("")+'</tr></tbody></table></div>';
+  h+='<div class="btns">'+thBtn("do7",L("اسمع السبعة ورجوع دو","Hear all seven and Do again"))+'</div>';
+  h+='<h3 class="th-h">'+L("قصة «دو ري مي»","The story of “Do Re Mi”")+'</h3>';
+  h+='<p>'+L("قبل ألف سنة تقريباً (حوالي سنة ١٠٢٥)، راهب إيطالي اسمه <b>گيدو الأريتسي</b> (Guido d’Arezzo) جان يعلّم المغنّين. لگى ترنيمة لاتينية قديمة كل سطر بيها يبدي بنوتة أعلى من اللي قبله، فأخذ أول مقطع من كل سطر وسمّى بيه النوتة: <b dir=\"ltr\">Ut – Re – Mi – Fa – Sol – La</b>. بعدين بالقرن السادس عشر انضافت <b>Si</b> من أول حرفين من آخر سطر (Sancte Iohannes)، وبالقرن السابع عشر تبدّلت <b>Ut</b> لـ<b>Do</b> لأنها أسهل بالغناء.","About a thousand years ago (around 1025), an Italian monk, <b>Guido d’Arezzo</b>, was teaching singers. He found an old Latin hymn whose every line starts one note higher than the last, and named each note after the first syllable of its line: <b>Ut – Re – Mi – Fa – Sol – La</b>. In the 16th century <b>Si</b> was added from the initials of the last line (Sancte Iohannes), and in the 17th century <b>Ut</b> became <b>Do</b>, which is easier to sing.")+'</p>';
+  h+='<p>'+L("أما <b>الحروف</b> (A B C…) فأقدم: بالقرون الوسطى جانوا يرقّمون النوتات بالحروف من الأوطى، فصارت لا = A. لهذا الحروف تبدي من لا مو من دو. تشوفها هواية بأسماء الكوردات: <b dir=\"ltr\">C</b> يعني دو، <b dir=\"ltr\">Am</b> يعني لا ماينر.","The <b>letters</b> (A B C…) are older: medieval musicians labelled notes with letters from the lowest one up, so La became A. That’s why the letters start at A, not C. You’ll see them constantly in chord names: <b>C</b> means Do, <b>Am</b> means La minor.")+'</p>';
+  h+=thEx(L("وين الدو على البيانو؟","Where is C on the piano?"),L("دوّر على مجموعة <b>المفتاحين الأسود</b>. الأبيض اللي يسارهم مباشرة هو دو، دايماً. من دو امشي يمين على الأبيض: دو، ري، مي، فا، صول، لا، سي، ودو ثانية. هاي المسافة من دو لدو اللي بعدها اسمها <b>أوكتاف</b> (من اللاتيني octo = ثمانية، لأنها ٨ نوتات).","Find a group of <b>two black keys</b>. The white key just left of them is always C. From there walk right on the white keys: C, D, E, F, G, A, B, and C again. That distance from one C to the next is an <b>octave</b> (Latin octo = eight, because it spans 8 notes)."));
+  h+=thCheck([[L("كم اسم نوتة موجود بالموسيقى؟","How many note names are there?"),L("سبعة بس: دو ري مي فا صول لا سي، وتتكرر بكل أوكتاف.","Only seven: Do Re Mi Fa Sol La Si, repeating every octave.")],[L("شنو يعني G بالحروف؟","What is G in solfège?"),L("صول. (C=دو، D=ري، E=مي، F=فا، G=صول، A=لا، B=سي)","Sol. (C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si)")],[L("منين إجا اسم «دو ري مي»؟","Where do the names “Do Re Mi” come from?"),L("من ترنيمة لاتينية استعملها گيدو الأريتسي حوالي ١٠٢٥: أول مقطع من كل سطر صار اسم نوتة.","From a Latin hymn used by Guido d’Arezzo around 1025: the first syllable of each line became a note name.")]]);
+  h+='</div></div>';
+
+  /* 3 — semitone, tone, quarter tone */
+  h+='<div class="block">'+blockHead(num(3),L("المسافات: نص التون، التون، وربع التون","Distances: semitone, tone and quarter tone"))+'<div class="card">';
+  h+='<p>'+L("الموسيقى مو بس نوتات، هي <b>مسافات</b> بين النوتات. مثل الدرج: مهم شگد عالية كل درجة. بالموسيقى عدنا ثلاث وحدات قياس:","Music isn’t just notes, it’s the <b>distances</b> between them. Like stairs: what matters is how tall each step is. Music has three units:")+'</p>';
+  h+='<div class="th-ruler"><div class="tr-row"><span class="tr-lab">'+L("تون","Tone")+'</span><span class="tr-bar t"><i></i><i></i><i></i><i></i></span><span class="tr-v">'+L("= ٢ نص = ٤ أرباع","= 2 semitones = 4 quarters")+'</span></div>';
+  h+='<div class="tr-row"><span class="tr-lab">'+L("نص تون","Semitone")+'</span><span class="tr-bar s"><i></i><i></i></span><span class="tr-v">'+L("= ٢ ربع","= 2 quarters")+'</span></div>';
+  h+='<div class="tr-row"><span class="tr-lab">'+L("ربع تون","Quarter")+'</span><span class="tr-bar q"><i></i></span><span class="tr-v">'+L("أصغر وحدة بالمقامات العربية","the smallest unit in Arabic maqams")+'</span></div></div>';
+
+  h+='<h3 class="th-h">'+L("١) نص التون: أصغر خطوة بالبيانو","1) The semitone: the smallest step on a piano")+'</h3>';
+  h+='<p>'+L("<b>نص التون</b> هو المسافة من أي مفتاح للمفتاح اللي لازگه بالضبط، بدون ما تطفر شي. أغلب الوقت يكون من أبيض لأسود أو من أسود لأبيض. بس انتبه: بمكانين بالبيانو ماكو مفتاح أسود بين الأبيضين: <b>مي-فا</b> و<b>سي-دو</b>. هناك نص التون يكون بين أبيض وأبيض.","A <b>semitone</b> is the distance from any key to the very next key, skipping nothing. Usually that’s white to black or black to white. But note: in two places there’s no black key between the whites: <b>E–F</b> and <b>B–C</b>. There the semitone is white to white.")+'</p>';
+  h+=thNote(L("<b>ليش ماكو أسود بين مي وفا؟</b> لأنهم أصلاً قريبين نص تون بس، فما يحتاج مفتاح بالنص. المفاتيح السود موجودة بس وين اكو فراغ تون كامل بين أبيضين.","<b>Why no black key between E and F?</b> Because they are already only a semitone apart, so nothing fits between them. Black keys exist only where two whites are a whole tone apart."));
+  h+=kbHTML("kb-th1",48,84)+thSayBox("th-s1",L("دوس مثال، وتابع المفاتيح.","Pick an example and follow the keys."));
+  h+='<div class="btns">'+thBtn("s1",L("دو ← دو♯","C → C♯"))+thBtn("s2",L("مي ← فا (أبيض لأبيض)","E → F (white to white)"))+thBtn("s3",L("سي ← دو","B → C"),1)+thBtn("chrom",L("الـ١٢ نص تون كلهم","All 12 semitones"),1)+'</div>';
+
+  h+='<h3 class="th-h">'+L("٢) التون: خطوتين نص","2) The tone: two semitones")+'</h3>';
+  h+='<p>'+L("<b>التون</b> (ويسمّوه بالعربي القديم «البُعد الطنيني») = نص تون + نص تون. يعني تطفر مفتاح واحد. الكلمة أصلها يوناني <i>tonos</i> يعني «الشدّ»، لأن شدّ الوتر هو اللي يغيّر النوتة.","A <b>tone</b> (whole tone) = semitone + semitone, so you skip exactly one key. The word comes from Greek <i>tonos</i>, “stretching”, because tightening a string changes its note.")+'</p>';
+  h+=thEx(L("دو ← ري","C → D"),L("من دو تطفر الأسود (دو♯) وتوصل ري: هذا تون. بس من مي، إذا تريد تون لازم تروح لـ<b>فا♯</b> (الأسود)، لأن من مي لفا بس نص.","From C you skip the black key (C♯) and land on D: that’s a tone. But from E, a tone up is <b>F♯</b> (the black key), because E to F is only a semitone."));
+  h+='<div class="btns">'+thBtn("t1",L("دو ← ري","C → D"))+thBtn("t2",L("مي ← فا♯","E → F♯"))+'</div>';
+
+  h+='<h3 class="th-h">'+L("٣) الدييز ♯ والبيمول ♭ والبيكار ♮","3) Sharp ♯, flat ♭ and natural ♮")+'</h3>';
+  h+='<ul class="clean"><li>'+L("<b>الدييز ♯</b> يرفع النوتة نص تون: دو♯ = المفتاح اللي يمين دو.","<b>Sharp ♯</b> raises a note a semitone: C♯ = the key right of C.")+'</li><li>'+L("<b>البيمول ♭</b> ينزّلها نص تون: سي♭ = المفتاح اللي يسار سي.","<b>Flat ♭</b> lowers it a semitone: B♭ = the key left of B.")+'</li><li>'+L("<b>البيكار ♮</b> يلغي الدييز أو البيمول ويرجّع النوتة طبيعية.","<b>Natural ♮</b> cancels a sharp or flat and returns the note to normal.")+'</li><li>'+L("كل مفتاح أسود إله <b>اسمين</b>: دو♯ هو نفسه ري♭. نختار الاسم حسب الاتجاه والسلّم.","Every black key has <b>two names</b>: C♯ is the same key as D♭. The name depends on direction and scale.")+'</li></ul>';
+  h+=thNote(L("<b>معلومة حلوة:</b> شكل ♭ و♮ و♯ كلها جاية من حرف <b>b</b>. بالقرون الوسطى جانوا يكتبون سي بحرفين: <b>b مدوّر</b> (ناعم، يعني سي الواطية) و<b>b مربّع</b> (قاسي، يعني سي العالية). الـb المدوّر صار البيمول ♭، والمربّع صار البيكار ♮ والدييز ♯.","<b>A nice fact:</b> the shapes ♭, ♮ and ♯ all come from the letter <b>b</b>. Medieval musicians wrote B two ways: a <b>round b</b> (soft, the lower B) and a <b>square b</b> (hard, the higher B). The round b became the flat ♭; the square one became the natural ♮ and the sharp ♯."));
+  h+='<div class="btns">'+thBtn("enh",L("مفتاح واحد، اسمين","One key, two names"),1)+'</div>';
+
+  h+='<h3 class="th-h">'+L("٤) ربع التون: سر الموسيقى العربية","4) The quarter tone: the secret of Arabic music")+'</h3>';
+  h+='<p>'+L("<b>ربع التون</b> = نص «نص التون». يعني نوتة تگعد <b>بين</b> مفتاحين لازگين. البيانو العادي ما بيه هيج مفتاح، بس المقامات العربية مثل <b>الراست</b> و<b>البياتي</b> و<b>السيكاه</b> تحتاجه. نكتبه بعلامة <b>نص بيمول ½♭</b> (بيمول بيه خط) أو <b>نص دييز ½♯</b>.","A <b>quarter tone</b> = half a semitone: a note sitting <b>between</b> two neighbouring keys. A regular piano has no such key, but Arabic maqams like <b>Rast</b>, <b>Bayati</b> and <b>Sikah</b> need it. It’s written with a <b>half-flat ½♭</b> (a flat with a stroke) or a <b>half-sharp ½♯</b>.")+'</p>';
+  h+=thEx(L("مي، مي½♭، مي♭","E, E½♭, E♭"),L("اسمع الثلاثة ورا بعض: الوسطانية هي ربع التون. أذنك أول مرة ممكن تحسها «نشاز»، وبعد كم مرة تحسها عراقية مية بالمية. على البيانو العادي الموقع يقبل المفتاح اللي جنبها، وعلى «البيانو الشرقي» اكو دواسة تنزّل النوتة ربع.","Hear all three in a row: the middle one is the quarter tone. At first your ear may hear it as out of tune; after a few listens it sounds completely Iraqi. On a regular piano the site accepts the neighbouring key; an “oriental piano” has a pedal that lowers the note a quarter."));
+  h+='<div class="btns">'+thBtn("q1",L("مي، مي½♭، مي♭","E, E½♭, E♭"))+thBtn("q2",L("اسمعها بلحن راست","Hear it in a Rast phrase"),1)+'</div>';
+  h+=thNote(L("<b>للأمانة:</b> «الربع» بالعزف الحقيقي مو دايماً ربع بالضبط؛ كل مدرسة (عراقية، حلبية، مصرية) تعزفه أعلى أو أوطى شوية. الأذن هي الحكم، ولهذا نتمرّن بالسماع.","<b>To be honest:</b> in real playing the “quarter” isn’t always exactly a quarter; each school (Iraqi, Aleppan, Egyptian) places it slightly higher or lower. The ear decides, which is why we practise by listening."));
+  h+=thCheck([[L("كم نص تون بالتون الواحد؟","How many semitones in a tone?"),L("اثنين. والتون = ٤ أرباع.","Two. And a tone = 4 quarter tones.")],[L("مي ← فا: تون لو نص؟","E → F: tone or semitone?"),L("نص تون، لأن ماكو أسود بيناتهم. ونفس الشي سي ← دو.","A semitone: there’s no black key between them. Same for B → C.")],[L("شنو المفتاح اللي يمين فا؟","What is the key just right of F?"),L("فا♯ (فا دييز)، ونفس المفتاح اسمه صول♭.","F♯ (F sharp), the same key as G♭.")],[L("ليش البيانو العادي ما يعزف ربع التون؟","Why can’t a regular piano play a quarter tone?"),L("لأن كل مفتاحين لازگين بيناتهم نص تون، وماكو مفتاح بالنص. يحتاج دوزان شرقي أو بيانو رقمي بيه أرباع.","Because neighbouring keys are a semitone apart, with no key between. It needs oriental tuning or a digital piano with quarter tones.")]]);
+  h+='</div></div>';
+
+  /* 4 — scale and major */
+  h+='<div class="block">'+blockHead(num(4),L("السلّم، والماجور","The scale, and major"))+'<div class="card">';
+  h+='<p>'+L("<b>السلّم</b> = ٨ نوتات مرتّبة من الواطي للعالي مثل درج البيت، تبدي بنوتة وتنتهي بنفس النوتة أعلى بأوكتاف. أول نوتة اسمها <b>القرار</b> أو <b>الأساس</b>، وهي «البيت» اللي اللحن يرتاح بيه. الشي اللي يخلي سلّم فرحان وسلّم حزين مو النوتات نفسها، هو <b>ترتيب المسافات</b>: وين التون ووين النص.","A <b>scale</b> = 8 notes in order from low to high, like the stairs of a house, starting on one note and ending on the same note an octave higher. The first note is the <b>tonic</b> (root): the “home” where the melody rests. What makes one scale happy and another sad isn’t the notes themselves but the <b>order of distances</b>: where the tones and semitones fall.")+'</p>';
+  h+='<h3 class="th-h">'+L("شنو يعني «ماجور»؟","What does “major” mean?")+'</h3>';
+  h+='<p>'+L("<b>ماجور</b> (major) كلمة لاتينية <i>maior</i> تعني «<b>الأكبر</b>»، وبالعربي نگول «<b>الكبير</b>». سمّوه هيج لأن المسافة من النوتة الأولى للثالثة بيه <b>كبيرة</b>: ٤ أنصاف تون (اسمها «ثالثة كبيرة»). هاي الثالثة الكبيرة هي اللي تعطيه صوته <b>المشرق والفرحان والثابت</b>. بالألماني يسمّوه <i>Dur</i> يعني «قاسي/صلب».","<b>Major</b> comes from Latin <i>maior</i>, “<b>greater</b>”. It’s called that because the distance from its first note to its third is <b>large</b>: 4 semitones (a “major third”). That big third gives it its <b>bright, happy, settled</b> sound. In German it’s <i>Dur</i>, “hard”.")+'</p>';
+  h+='<div class="th-formula"><span>'+L("قانون الماجور","The major formula")+'</span><b>'+L("ت ت ن ت ت ت ن","T T S T T T S")+'</b><em>'+L("ت = تون · ن = نص تون","T = tone · S = semitone")+'</em></div>';
+  h+='<p>'+L("أي نوتة تبدي منها وتمشي بهالقانون، يطلعلك سلّم ماجور. أسهل واحد <b>دو ماجور</b> لأن كله مفاتيح بيض:","Start on any note and follow this rule, and you get a major scale. The easiest is <b>C major</b>, all white keys:")+'</p>';
+  h+=thStaff("th-st-cmaj",[60,62,64,65,67,69,71,72],0,{labs:[1,2,3,1,2,3,4,5].map(function(x){ return L("إ"+num(x),"f"+x); })})+thSteps([60,62,64,65,67,69,71,72]);
+  h+=kbHTML("kb-th2",48,84)+thSayBox("th-s2",L("اضغط «اسمع» وتابع: المدرّج والمفاتيح يتحرّكون سوا، ورقم الإصبع مكتوب.","Press play and follow: the staff and keys move together, with finger numbers."));
+  h+='<div class="btns">'+thBtn("cmaj",L("دو ماجور ببطء","C major, slowly"))+thBtn("third4",L("عدّ الثالثة الكبيرة","Count the major third"),1)+thBtn("cmajc",L("كورد دو ماجور","C major chord"),1)+'</div>';
+  h+='<h3 class="th-h">'+L("شلون تعزفه؟","How do you play it?")+'</h3>';
+  h+='<ol class="clean th-ol"><li>'+L("حط إبهام اليمنى (١) على دو الوسطى.","Put your right thumb (1) on middle C.")+'</li><li>'+L("اعزف دو ري مي بالأصابع ١ ٢ ٣.","Play C D E with fingers 1 2 3.")+'</li><li>'+L("هسه السر: <b>الإبهام يعبر جوّا الإيد</b> ويروح لفا، والإيد تنزاح وياه.","Now the secret: <b>the thumb passes under the hand</b> to F, and the hand shifts with it.")+'</li><li>'+L("كمّل صول لا سي دو بالأصابع ٢ ٣ ٤ ٥.","Continue G A B C with fingers 2 3 4 5.")+'</li><li>'+L("بالنزول بالعكس: ٥ ٤ ٣ ٢ ١، وبعد فا يعبر الإصبع ٣ من فوگ الإبهام لمي.","Coming down, reverse: 5 4 3 2 1, then finger 3 crosses over the thumb onto E.")+'</li></ol>';
+  h+='<h3 class="th-h">'+L("شلون ينقرا اسمه ويكتب؟","How is it named and written?")+'</h3>';
+  h+='<div class="tablebox"><table class="compare th-tab"><tbody><tr><th>'+L("بالكلام","Spoken")+'</th><td>'+L("«دو ماجور» أو «دو الكبير»، وبالمقامات «عجم على دو»","“C major”; in maqam terms “Ajam on C”")+'</td></tr><tr><th>'+L("كورد بورقة الأغاني","On a chord sheet")+'</th><td dir="ltr"><b>C</b> · <b>G</b> · <b>F</b></td></tr><tr><th>'+L("القاعدة","The rule")+'</th><td>'+L("الحرف لوحده بدون شي = ماجور","A letter alone = major")+'</td></tr></tbody></table></div>';
+  h+=thEx(L("نبني «صول ماجور» بالقانون","Building G major with the formula"),L("نبدي من صول: ت ← لا، ت ← سي، ن ← دو، ت ← ري، ت ← مي، ت ← ؟؟ من مي تون لازم نوصل <b>فا♯</b> مو فا! وبعدها ن ← صول. شفت؟ القانون نفسه «اكتشف» الدييز. لهذا صول ماجور بيه فا♯ وحدة، وتنكتب بأول السطر.","Start on G: T → A, T → B, S → C, T → D, T → E, T → ?? A tone from E lands on <b>F♯</b>, not F! Then S → G. See? The formula itself “discovered” the sharp. That’s why G major has one F♯, written at the start of the line."));
+  h+=thStaff("th-st-gmaj",[67,69,71,72,74,76,78,79],4,{hl:[6]})+thSteps([67,69,71,72,74,76,78,79]);
+  h+='<div class="btns">'+thBtn("gmaj",L("اسمع صول ماجور","Hear G major"))+'</div>';
+  h+=thNote(L("<b>بالمقامات:</b> سلّم الماجور هو نفسه مقام <b>العجم</b>. فإذا تعرف العجم، تعرف الماجور.","<b>In maqam terms:</b> the major scale is maqam <b>Ajam</b>. Know one, know the other."));
+  h+=thCheck([[L("ليش اسمه ماجور؟","Why is it called major?"),L("من اللاتيني maior = الأكبر، لأن الثالثة بيه كبيرة: ٤ أنصاف تون.","Latin maior = greater, because its third is large: 4 semitones.")],[L("قانون الماجور؟","The major formula?"),L("ت ت ن ت ت ت ن (تون تون نص تون تون تون نص).","T T S T T T S.")],[L("وين النصّين بدو ماجور؟","Where are the two semitones in C major?"),L("بين مي-فا (٣-٤) وبين سي-دو (٧-٨).","Between E–F (3–4) and B–C (7–8).")],[L("شنو يعني G على ورقة كوردات؟","What does G mean on a chord sheet?"),L("كورد صول ماجور: صول سي ري.","A G major chord: G B D.")]]);
+  h+='</div></div>';
+
+  /* 5 — minor */
+  h+='<div class="block">'+blockHead(num(5),L("الماينر","Minor"))+'<div class="card">';
+  h+='<p>'+L("<b>ماينر</b> (minor) من اللاتيني <i>minor</i> يعني «<b>الأصغر</b>»، وبالعربي «<b>الصغير</b>». السبب: الثالثة بيه <b>صغيرة</b>، ٣ أنصاف تون بس بدل ٤. هالنص تون الناقص هو اللي يخلي صوته <b>حزين، حنون، أو غامض</b>. بالألماني <i>Moll</i> يعني «ناعم/طري»، من نفس الـb المدوّر.","<b>Minor</b> comes from Latin <i>minor</i>, “<b>lesser</b>”. Why: its third is <b>small</b>, only 3 semitones instead of 4. That one missing semitone makes it sound <b>sad, tender or mysterious</b>. In German it’s <i>Moll</i>, “soft”, from the same round b.")+'</p>';
+  h+='<div class="th-formula"><span>'+L("قانون الماينر الطبيعي","The natural minor formula")+'</span><b>'+L("ت ن ت ت ن ت ت","T S T T S T T")+'</b><em>'+L("النص صار بعد الدرجة الثانية","The semitone now comes after the second degree")+'</em></div>';
+  h+='<p>'+L("أسهل ماينر هو <b>لا ماينر</b>: نفس مفاتيح دو ماجور البيض، بس نبدي من لا. يعني نفس النوتات، بس «البيت» تغيّر، فتغيّر الإحساس كله. لهذا نسمّي لا ماينر «<b>القريب</b>» أو «النسبي» لدو ماجور.","The easiest minor is <b>A minor</b>: the same white keys as C major, but starting on A. Same notes, a different “home”, and the whole feeling changes. That’s why A minor is called the <b>relative minor</b> of C major.")+'</p>';
+  h+=thStaff("th-st-amin",[57,59,60,62,64,65,67,69],5,{})+thSteps([57,59,60,62,64,65,67,69]);
+  h+=kbHTML("kb-th3",48,84)+thSayBox("th-s3",L("قارن بأذنك ويه دو ماجور اللي فوگ.","Compare it by ear with the C major above."));
+  h+='<div class="btns">'+thBtn("amin",L("لا ماينر ببطء","A minor, slowly"))+thBtn("third3",L("عدّ الثالثة الصغيرة","Count the minor third"),1)+thBtn("aminc",L("كورد لا ماينر","A minor chord"),1)+'</div>';
+  h+='<h3 class="th-h">'+L("الماينر على دو","Minor on C")+'</h3>';
+  h+='<p>'+L("إذا نطبّق قانون الماينر من دو، تنزل ثلاث نوتات نص تون عن دو ماجور: <b>مي♭ ولا♭ وسي♭</b>.","Apply the minor formula from C and three notes drop a semitone from C major: <b>E♭, A♭ and B♭</b>.")+'</p>';
+  h+=thStaff("th-st-cmin",[60,62,63,65,67,68,70,72],0,{hl:[2,5,6]})+thSteps([60,62,63,65,67,68,70,72]);
+  h+='<div class="btns">'+thBtn("cmin",L("دو ماينر","C minor"))+'</div>';
+  h+='<h3 class="th-h">'+L("ثلاث أنواع ماينر","Three kinds of minor")+'</h3>';
+  h+='<div class="grid3"><div class="th-kind"><b>'+L("طبيعي","Natural")+'</b><p>'+L("القانون مثل ما هو: ت ن ت ت ن ت ت. هادي وحزين.","The formula as is: T S T T S T T. Calm and sad.")+'</p></div><div class="th-kind"><b>'+L("هارموني","Harmonic")+'</b><p>'+L("نرفع السابعة نص تون (صول♯ بلا ماينر). يصير بيه «تون ونص» طعمه شرقي، قريب جداً من مقام <b>النهاوند</b>.","Raise the seventh a semitone (G♯ in A minor). It gains a “tone and a half” with an eastern taste, very close to maqam <b>Nahawand</b>.")+'</p>'+thBtn("aharm",L("اسمع","Hear"),1)+'</div><div class="th-kind"><b>'+L("ميلودي","Melodic")+'</b><p>'+L("بالصعود نرفع السادسة والسابعة، وبالنزول يرجع طبيعي. حتى اللحن يصعد ناعم.","Going up, raise the sixth and seventh; coming down, back to natural, so the melody climbs smoothly.")+'</p>'+thBtn("amel",L("اسمع","Hear"),1)+'</div></div>';
+  h+='<div class="tablebox" style="margin-top:14px"><table class="compare th-tab"><tbody><tr><th>'+L("بالكلام","Spoken")+'</th><td>'+L("«لا ماينر» أو «لا الصغير»","“A minor”")+'</td></tr><tr><th>'+L("كورد","Chord symbol")+'</th><td dir="ltr"><b>Am</b> · <b>Dm</b> · <b>Em</b></td></tr><tr><th>'+L("القاعدة","The rule")+'</th><td>'+L("حرف <b>m</b> صغير بعد اسم النوتة = ماينر. (حرف M كبير أو maj = ماجور)","A small <b>m</b> after the letter = minor. (Capital M or maj = major)")+'</td></tr></tbody></table></div>';
+  h+=thCheck([[L("ليش اسمه ماينر؟","Why is it called minor?"),L("من اللاتيني minor = الأصغر، لأن ثالثته صغيرة: ٣ أنصاف تون.","Latin minor = lesser, because its third is small: 3 semitones.")],[L("شنو الفرق الوحيد بين كورد دو ماجور ودو ماينر؟","What is the only difference between C major and C minor chords?"),L("الثالثة: مي بالماجور، ومي♭ بالماينر. نوتة وحدة نزلت نص تون.","The third: E in major, E♭ in minor. One note down a semitone.")],[L("شنو يعني Dm؟","What does Dm mean?"),L("ري ماينر: ري فا لا.","D minor: D F A.")],[L("أي ماينر بيه نفس نوتات دو ماجور؟","Which minor has the same notes as C major?"),L("لا ماينر، لأنه «النسبي» إله.","A minor, its relative minor.")]]);
+  h+='</div></div>';
+
+  /* 6 — hear the difference + quiz */
+  h+='<div class="block">'+blockHead(num(6),L("درّب أذنك: ماجور لو ماينر؟","Train your ear: major or minor?"),'<span class="tag rose" id="th-qs"></span>')+'<div class="card">';
+  h+='<p>'+L("أول شي اسمع الفرق على نفس النوتة، وبعدين جرّب الاختبار: الموقع يعزف كورد عشوائي وانت تگول ماجور لو ماينر. <b>نصيحة:</b> لا تفكّر بالنوتات، اسأل نفسك «هذا الصوت فرحان لو حزين؟».","First hear the difference on the same note, then try the quiz: the site plays a random chord and you say major or minor. <b>Tip:</b> don’t think about notes; ask yourself “does this sound happy or sad?”")+'</p>';
+  h+=kbHTML("kb-th4",48,79)+thSayBox("th-s4","");
+  h+='<div class="btns">'+thBtn("cmp1",L("دو ماجور","C major"))+thBtn("cmp2",L("دو ماينر","C minor"))+thBtn("cmp3",L("لحن ماجور","Major phrase"),1)+thBtn("cmp4",L("نفس اللحن ماينر","Same phrase in minor"),1)+'</div>';
+  h+='<div class="th-quiz"><button class="btn" type="button" id="th-qnew">'+L("▶ كورد جديد","▶ New chord")+'</button><button class="btn sec" type="button" id="th-qagain">'+L("عيده","Again")+'</button><span class="sep"></span><button class="btn sec" type="button" data-thq="maj">'+L("ماجور ☀","Major ☀")+'</button><button class="btn sec" type="button" data-thq="min">'+L("ماينر ☾","Minor ☾")+'</button></div><p class="small" id="th-qmsg" aria-live="polite">'+L("اضغط «كورد جديد».","Press “New chord”.")+'</p>';
+  h+='</div></div>';
+
+  /* 7 — summary */
+  h+='<div class="block">'+blockHead(num(7),L("الخلاصة بجدول","Everything in one table"))+'<div class="card tablebox" style="padding:6px 8px"><table class="compare th-tab"><thead><tr><th>'+L("الكلمة","Term")+'</th><td>'+L("شنو يعني","Meaning")+'</td><td>'+L("مثال","Example")+'</td></tr></thead><tbody>';
+  [[L("نوتة","Note"),L("صوت بارتفاع ثابت وإله اسم","A sound at a fixed height, with a name"),L("لا = 440 Hz","A = 440 Hz")],
+   [L("أوكتاف","Octave"),L("من نوتة لنفس النوتة الأعلى، ١٢ نص تون","From a note to the same note higher: 12 semitones"),L("دو٤ ← دو٥","C4 → C5")],
+   [L("نص تون","Semitone"),L("أقرب مفتاحين لازگين","Two neighbouring keys"),L("مي ← فا، دو ← دو♯","E → F, C → C♯")],
+   [L("تون","Tone"),L("نصّين","Two semitones"),L("دو ← ري","C → D")],
+   [L("ربع تون","Quarter tone"),L("نص النص؛ للمقامات","Half a semitone; for maqams"),L("مي½♭ بالراست","E½♭ in Rast")],
+   [L("دييز ♯ / بيمول ♭ / بيكار ♮","Sharp / flat / natural"),L("يرفع نص / ينزّل نص / يلغي","Up a semitone / down / cancel"),L("فا♯، سي♭","F♯, B♭")],
+   [L("ماجور (الكبير)","Major"),L("ت ت ن ت ت ت ن، ثالثة ٤ أنصاف، مشرق","T T S T T T S; third of 4 semitones; bright"),L("C = دو مي صول","C = C E G")],
+   [L("ماينر (الصغير)","Minor"),L("ت ن ت ت ن ت ت، ثالثة ٣ أنصاف، حزين","T S T T S T T; third of 3 semitones; sad"),L("Am = لا دو مي","Am = A C E")]
+  ].forEach(function(r){ h+='<tr><th>'+r[0]+'</th><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>'; });
+  h+='</tbody></table></div><p class="small" style="margin-top:12px">'+L("الخطوة الجاية: «قراءة النوتة»، نتعلّم نقرا هاي الأشياء من الورقة.","Next: “Reading music”, where we learn to read all this from the page.")+'</p></div>';
+  return h+pager("theory");
+}
+function thQuizNew(){ var roots=[48,50,52,53,55,57,59,60]; var r=roots[Math.floor(Math.random()*roots.length)], t=Math.random()<0.5?"maj":"min";
+  TH.q={r:r,t:t,done:false}; thQuizPlay(); thSay("th-qmsg",L("ماجور لو ماينر؟","Major or minor?")); kbLight("kb-th4",[]); }
+function thQuizPlay(){ if(!TH.q) return; var q=TH.q, ms=[q.r,q.r+(q.t==="maj"?4:3),q.r+7]; thStop(); ensureAudio(); loadSamples(); playChord(ms,1.4); ms.forEach(function(m,i){ playMidi(m,0.35,1.7+i*0.32,0.8); }); }
+function thQuizAns(a){ var q=TH.q; if(!q||q.done) return; var ok=a===q.t; TH.n++; if(ok){ TH.score++; q.done=true; }
+  var ms=[q.r,q.r+(q.t==="maj"?4:3),q.r+7], n=spellMidi(q.r,q.t==="min");
+  if(ok) kbLight("kb-th4",ms.map(function(m,i){ return {m:m,h:"R",f:[1,3,5][i]}; }));
+  thSay("th-qmsg",ok?'<b class="ok">'+L("صح! ","Right! ")+'</b>'+L("هذا "+nmShort(n)+(q.t==="maj"?" ماجور":" ماينر")+": الثالثة "+(q.t==="maj"?"٤":"٣")+" أنصاف تون.","That was "+nmShort(n)+(q.t==="maj"?" major":" minor")+": a third of "+(q.t==="maj"?"4":"3")+" semitones."):'<span class="rose">'+L("مو هذا. اسمعه مرة ثانية واسأل: فرحان لو حزين؟","Not quite. Listen again: happy or sad?")+'</span>');
+  var e=document.getElementById("th-qs"); if(e) e.textContent=L("صح: ","Correct: ")+num(TH.score)+" / "+num(TH.n); }
+function bindTheory(){
+  document.querySelectorAll("[data-thx]").forEach(function(b){ b.onclick=function(){ thRun(b.getAttribute("data-thx")); }; });
+  document.querySelectorAll("[data-thq]").forEach(function(b){ b.onclick=function(){ thQuizAns(b.getAttribute("data-thq")); }; });
+  document.getElementById("th-qnew").onclick=thQuizNew; document.getElementById("th-qagain").onclick=thQuizPlay;
+  kbLight("kb-th0",[{m:60,h:"R"}]); kbScrollTo("kb-th0",66);
+}
+
+/* ================= reading chapter: the deeper blocks ================= */
+var RDX={ode:[64,64,65,67,67,65,64,62,60,60,62,64,64,62,62]};
+function rdMoreHTML(){
+  var h='';
+  /* 3 — the staff line by line */
+  h+='<div class="block">'+blockHead(num(3),L("المدرّج خط خط","The staff, line by line"))+'<div class="card">';
+  h+='<p>'+L("<b>المدرّج</b> = ٥ خطوط أفقية وبيناتهم ٤ فراغات. نعدّ دايماً <b>من الجوّا لفوگ</b>: الخط الأول هو الأوطى. كل نوتة يا تگعد <b>على خط</b> (الخط يقطع راسها من النص) يا <b>بفراغ</b> (بين خطين). وكل ما صعدنا خطوة (من خط لفراغ لخط) نصعد مفتاح أبيض واحد.","The <b>staff</b> = 5 horizontal lines with 4 spaces between them. We always count <b>from the bottom up</b>: line 1 is the lowest. Every note sits either <b>on a line</b> (the line cuts through its head) or <b>in a space</b> (between two lines). Each step up (line, space, line) is one white key up.")+'</p>';
+  h+='<div class="th-two"><div class="th-mn"><b>'+L("خطوط مفتاح صول (من جوّا)","Treble-clef lines (bottom up)")+'</b><span>'+L("مي · صول · سي · ري · فا","E · G · B · D · F")+'</span><em>'+L("احفظها بالتكرار، أو بالجملة الإنكليزية Every Good Boy Does Fine (أول حرف من كل كلمة)","Mnemonic: “Every Good Boy Does Fine”")+'</em></div><div class="th-mn"><b>'+L("فراغات مفتاح صول","Treble-clef spaces")+'</b><span>'+L("فا · لا · دو · مي","F · A · C · E")+'</span><em>'+L("حفّاظة: بالإنكليزي تنقرا كلمة FACE (وجه)","Mnemonic: they spell FACE")+'</em></div></div>';
+  h+='<div id="rx-up">'+staffSVG({clef:"treble",w:440,groups:[60,62,64,65,67,69,71,72].map(function(m,i){ var n=spellMidi(m); return {notes:[{n:n,m:m}],dur:"q",lab:nmShort(n)}; })})+'</div>';
+  h+='<p class="small">'+L("لاحظ دو الوسطى بأول السطر: تحت المدرّج ويه <b>خط إضافي</b> صغير مقطوع بيها. والنوتات بعدها: ري تحت الخط الأول، مي على الخط الأول، فا بالفراغ الأول… وهكذا.","See middle C at the start: below the staff, with a small <b>ledger line</b> through it. Then D hangs below line 1, E sits on line 1, F in space 1… and so on.")+'</p>';
+  h+=kbHTML("kb-rx",48,84)+'<div class="btns"><button class="btn" type="button" id="rx-play">'+L("▶ اعزف السلّم وتابع النوتة","▶ Play the scale and follow the note")+'</button></div></div></div>';
+  /* 4 — time */
+  h+='<div class="block">'+blockHead(num(4),L("الوقت: الضربة والميزان والعد","Time: beat, time signature, counting"))+'<div class="card">';
+  h+='<p>'+L("<b>الضربة</b> هي نبض الموسيقى، مثل دقّات القلب أو خطوات المشي. شكل النوتة يگلك <b>شگد تطوّل</b> بالضربات، ومكانها بالمدرّج يگلك <b>أي مفتاح</b>. يعني كل نوتة تجاوب على سؤالين: <b>وين؟</b> و<b>شگد؟</b>","The <b>beat</b> is the pulse of music, like a heartbeat or footsteps. A note’s shape tells you <b>how long</b> to hold it in beats; its place on the staff tells you <b>which key</b>. Every note answers two questions: <b>where?</b> and <b>how long?</b>")+'</p>';
+  h+='<div class="tablebox"><table class="compare th-tab"><thead><tr><th>'+L("الشكل","Shape")+'</th><td>'+L("الاسم","Name")+'</td><td>'+L("الطول","Length")+'</td><td>'+L("شلون تعدّها","How to count")+'</td></tr></thead><tbody>';
+  [[L("راس فارغ بدون عصا","Hollow head, no stem"),L("مدوّرة","Whole"),L("٤ ضربات","4 beats"),"١ - ٢ - ٣ - ٤"],
+   [L("راس فارغ ويه عصا","Hollow head + stem"),L("بيضاء","Half"),L("ضربتين","2 beats"),"١ - ٢"],
+   [L("راس مليان ويه عصا","Filled head + stem"),L("سوداء","Quarter"),L("ضربة","1 beat"),"١"],
+   [L("سوداء ويه علم أو جسر","Quarter with a flag or beam"),L("كروش","Eighth"),L("نص ضربة","½ beat"),L("«١ و»: الرقم والـ«و» كل وحدة كروش","“1 and”: each syllable one eighth")],
+   [L("أي نوتة ويه نقطة جنبها","Any note with a dot"),L("منقّطة","Dotted"),L("+ نص طولها","+ half its length"),L("البيضاء المنقّطة = ٣ ضربات","dotted half = 3 beats")],
+   [L("علامات السكتة","Rest signs"),L("سكتة","Rest"),L("نفس الأطوال","the same lengths"),L("تعدّها بس ما تعزف","count it, don’t play")]
+  ].forEach(function(r){ h+='<tr><th>'+r[0]+'</th><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>'; });
+  h+='</tbody></table></div>';
+  h+='<p style="margin-top:14px">'+L("<b>الميزان</b> هو الرقمين فوگ بعض بأول المقطوعة. <b>الرقم الفوگاني</b> = كم ضربة بكل مازورة، و<b>الجوّاني</b> = شنو هي الضربة (٤ يعني السوداء). <b>المازورة</b> هي الصندوق بين خطين عموديين.","The <b>time signature</b> is the two stacked numbers at the start. <b>Top</b> = beats per bar; <b>bottom</b> = which note gets the beat (4 means the quarter). A <b>bar</b> (measure) is the box between two vertical lines.")+'</p>';
+  h+='<div class="grid3"><div class="th-kind"><b dir="ltr">4/4</b><p>'+L("٤ ضربات. الأشيع بالعالم. عدّ: <b>١</b> ٢ ٣ ٤.","4 beats; the most common. Count: <b>1</b> 2 3 4.")+'</p></div><div class="th-kind"><b dir="ltr">3/4</b><p>'+L("٣ ضربات، الفالس والتهويدات: <b>١</b> ٢ ٣.","3 beats: waltzes and lullabies, <b>1</b> 2 3.")+'</p></div><div class="th-kind"><b dir="ltr">2/4</b><p>'+L("ضربتين، المارشات والمقسوم: <b>١</b> ٢.","2 beats: marches and Maqsum, <b>1</b> 2.")+'</p></div></div>';
+  h+=thNote(L("<b>الضربة الأولى</b> بكل مازورة هي الأقوى. لهذا نعدّ «<b>واحد</b> اثنين ثلاثة أربعة» ونشدّ على الواحد.","The <b>first beat</b> of every bar is the strongest, so we count “<b>ONE</b> two three four”."));
+  h+='</div></div>';
+  /* 5 — key signature */
+  h+='<div class="block">'+blockHead(num(5),L("الإشارات بأول السطر","Signs at the start of the line"))+'<div class="card">';
+  h+='<p>'+L("أحياناً تشوف دييز أو بيمول ملصوگ جنب المفتاح بأول كل سطر. هاي اسمها <b>دليل السلّم</b> (key signature)، وتعني: «هالنوتة دايماً مرفوعة أو منزّلة بكل المقطوعة، حتى لو ما نكتبها كل مرة». مثلاً دييز على خط فا = كل فا تعزفها فا♯، وهذا معناه المقطوعة على <b>صول ماجور</b>.","Sometimes a sharp or flat sits right after the clef at the start of every line. That’s the <b>key signature</b>: “this note is always raised or lowered throughout the piece, even if not written each time”. A sharp on the F line = play every F as F♯, which means the piece is in <b>G major</b>.")+'</p>';
+  h+=staffSVG({clef:"treble",ks:[{n:sp(3,1,5)}],w:420,groups:[67,69,71,72,74,76,78,79].map(function(m,i){ var o=i<3?4:5, l=(4+i)%7; return {notes:[{n:sp(l,0,o),m:m,cls:i===6?"hl":""}],dur:"q",lab:i===6?L("فا♯!","F♯!"):""}; })});
+  h+='<p class="small">'+L("النوتة المضوّية مكتوبة فا بدون دييز، بس بسبب الدييز بأول السطر نعزفها فا♯. و<b>البيكار ♮</b> إذا انكتب جنب نوتة يلغي هالدليل لحد آخر المازورة.","The highlighted note is written as plain F, but the sharp at the start makes it F♯. A <b>natural ♮</b> next to a note cancels the key signature until the end of that bar.")+'</p></div></div>';
+  /* 6 — worked example */
+  h+='<div class="block">'+blockHead(num(6),L("اقرا وياي: مثال كامل خطوة بخطوة","Read with me: a full example, step by step"))+'<div class="card">';
+  h+='<p>'+L("هاي أول أربع مازورات من «<b>نشيد الفرح</b>» لبيتهوفن. خلّينا نقراها مثل ما يقراها العازف بالضبط:","Here are the first four bars of Beethoven’s “<b>Ode to Joy</b>”. Let’s read them exactly as a pianist would:")+'</p>';
+  var ode=RDX.ode, durs=["q","q","q","q","q","q","q","q","q","q","q","q","q","q","h"];
+  h+='<div id="rx-ode">'+staffSVG({clef:"treble",ts:"4/4",bars:[3,7,11],w:760,groups:ode.map(function(m,i){ var n=spellMidi(m); return {notes:[{n:n,m:m}],dur:durs[i],lab:nmShort(n)}; })})+'</div>';
+  h+='<ol class="clean th-ol">';
+  [L("<b>شوف المفتاح:</b> مفتاح صول، يعني نقرا للإيد اليمنى، وخطوطه مي صول سي ري فا.","<b>Look at the clef:</b> treble, so this is for the right hand; its lines are E G B D F."),
+   L("<b>شوف الدليل:</b> ماكو دييز ولا بيمول بأول السطر، يعني كله مفاتيح بيض (دو ماجور).","<b>Check the key signature:</b> no sharps or flats, so all white keys (C major)."),
+   L("<b>شوف الميزان:</b> ٤/٤، يعني ٤ ضربات بكل مازورة، والسوداء ضربة.","<b>Read the time signature:</b> 4/4, four beats per bar, a quarter note per beat."),
+   L("<b>اقرا أول نوتة:</b> قاعدة على <b>الخط الأول</b> = <b>مي</b>. والثانية نفسها مي.","<b>Read the first note:</b> it sits on <b>line 1</b> = <b>E</b>. The second is E again."),
+   L("<b>تابع الاتجاه:</b> الثالثة بالفراغ الأول = فا (صعدنا خطوة)، والرابعة على الخط الثاني = صول. ما تحتاج تحفظ كل نوتة: شوف بس صاعدة لو نازلة، وخطوة لو قفزة.","<b>Follow the direction:</b> the third is in space 1 = F (one step up), the fourth on line 2 = G. You needn’t memorise every note: just see up or down, step or leap."),
+   L("<b>شوف الأطوال:</b> كلها سود (ضربة ضربة)، إلا آخر وحدة <b>بيضاء</b> = ضربتين. عدّ بصوت: «١ ٢ ٣ ٤ | ١ ٢ ٣ ٤ …».","<b>Check the lengths:</b> all quarters (one beat each), except the last, a <b>half note</b> = two beats. Count aloud: “1 2 3 4 | 1 2 3 4 …”."),
+   L("<b>حط إيدك:</b> وضعية دو، الإبهام على دو. فمي بالإصبع ٣، فا بـ٤، صول بـ٥.","<b>Place your hand:</b> C position, thumb on C. So E is finger 3, F is 4, G is 5."),
+   L("<b>اعزف ببطء وعدّ:</b> اضغط الزر وتابع النوتة المضوّية بالمدرّج والمفتاح سوا.","<b>Play slowly and count:</b> press the button and follow the lit note on the staff and the key together.")
+  ].forEach(function(t){ h+='<li>'+t+'</li>'; });
+  h+='</ol>'+kbHTML("kb-rx2",48,84)+thSayBox("rx-say","")+'<div class="btns"><button class="btn" type="button" id="rx-ode-p">'+L("▶ اعزف المثال ويه العد","▶ Play the example with counting")+'</button><a class="btn sec" href="#practice">'+L("جرّبه انت بالمقطوعات","Try it yourself in Pieces")+'</a></div>';
+  h+=thCheck([[L("نوتة على الخط الثاني بمفتاح صول؟","A note on line 2 of the treble clef?"),L("صول. (الخطوط: مي صول سي ري فا)","G. (Lines: E G B D F)")],[L("بيضاء منقّطة كم ضربة؟","How long is a dotted half?"),L("٣ ضربات: ٢ + نص الـ٢.","3 beats: 2 plus half of 2.")],[L("٣/٤ شنو تعني؟","What does 3/4 mean?"),L("٣ ضربات بكل مازورة، والسوداء هي الضربة.","3 beats per bar, the quarter note gets the beat.")]]);
+  h+='</div></div>';
+  return h;
+}
+function bindReadMore(){
+  var up=[60,62,64,65,67,69,71,72];
+  document.getElementById("rx-play").onclick=function(){ thPlay("kb-rx",up,{step:560,staff:"rx-up",f:[1,2,3,1,2,3,4,5]}); };
+  var F={60:1,62:2,64:3,65:4,67:5};
+  document.getElementById("rx-ode-p").onclick=function(){ var ms=RDX.ode, beat=600, t=0; thStop(); ensureAudio(); loadSamples(); var stf=document.getElementById("rx-ode");
+    ms.forEach(function(m,i){ var len=i===ms.length-1?2:1, st=t; thLater(function(){ playMidi(m,len*beat/1000*0.92,0,0.85); kbLight("kb-rx2",[{m:m,h:"R",f:F[m]}]);
+        stf.querySelectorAll(".sg").forEach(function(g){ g.classList.toggle("now",+g.getAttribute("data-gi")===i); });
+        var bar=Math.floor(st/4)+1, bt=st%4+1; thSay("rx-say",L("المازورة "+num(bar)+" · الضربة <b>"+num(bt)+(len>1?" - "+num(bt+1):"")+"</b> · "+nmLong(spellMidi(m))+" · الإصبع "+num(F[m]),"Bar "+bar+" · beat <b>"+bt+(len>1?"–"+(bt+1):"")+"</b> · "+nmLong(spellMidi(m))+" · finger "+F[m])); },st*beat);
+      t+=len; });
+    thLater(function(){ stf.querySelectorAll(".sg.now").forEach(function(g){ g.classList.remove("now"); }); },t*beat+200); };
+}
+
 /* ================= tools: metronome + listener ================= */
 var MET={on:false,bpm:80,pat:"4",timer:0,next:0,step:0,tapT:[]}, LIS={on:false};
 var RHY={
@@ -2660,7 +2961,7 @@ function renderChrome(cur){
   document.getElementById("brand-name").textContent=L("أتيليه البيانو","Piano Atelier");
   document.getElementById("brand-sub").textContent=L("Piano Atelier","Academy of Piano");
   document.querySelectorAll("#lang-seg button").forEach(function(b){ b.setAttribute("aria-pressed",b.getAttribute("data-lang")===lang?"true":"false"); });
-  document.getElementById("topnav").innerHTML=[["instrument",L("تعلّم","Learn")],["keyboard",L("المفاتيح","Keys")],["reading",L("القراءة","Reading")],["chords",L("الكوردات","Chords")],["maqamat",L("المقامات","Maqams")],["practice",L("المقطوعات","Pieces")],["warmup",L("تمرين اليوم","Daily")],["glossary",L("القاموس","Glossary")],["course",L("مسيرتي","My course")],["admin",L("التحكم","Panel")]].map(function(x){ return '<a href="#'+x[0]+'"'+(x[0]===cur?' aria-current="page"':'')+'>'+x[1]+'</a>'; }).join("");
+  document.getElementById("topnav").innerHTML=[["instrument",L("تعلّم","Learn")],["keyboard",L("المفاتيح","Keys")],["theory",L("من الصفر","From zero")],["reading",L("القراءة","Reading")],["chords",L("الكوردات","Chords")],["maqamat",L("المقامات","Maqams")],["practice",L("المقطوعات","Pieces")],["warmup",L("تمرين اليوم","Daily")],["glossary",L("القاموس","Glossary")],["course",L("مسيرتي","My course")],["admin",L("التحكم","Panel")]].map(function(x){ return '<a href="#'+x[0]+'"'+(x[0]===cur?' aria-current="page"':'')+'>'+x[1]+'</a>'; }).join("");
   var r='<h4>'+L("الفصول","Chapters")+'</h4>';
   ROUTES.slice(1).forEach(function(x,i){ r+='<a href="#'+x.id+'"'+(x.id===cur?' aria-current="page"':'')+'><span class="n">'+num(i+1)+'</span><span><b>'+L(x.t[0],x.t[1])+'</b><span class="d">'+L(x.d[0],x.d[1])+'</span></span></a>'; });
   document.getElementById("rail").innerHTML=r;
@@ -2741,13 +3042,13 @@ window.addEventListener("scroll",stScroll,{passive:true});
 window.addEventListener("resize",stScroll);
 requestAnimationFrame(stTick);
 
-function stopAll(){ testStop(); paStop(); rhStop(); tqStop(); recStop(); mqStop(); chStop(); prStop(); stopTools(); folStop(); hearStop(); RD.mode="tap"; hidePop(); }
+function stopAll(){ testStop(); thStop(); paStop(); rhStop(); tqStop(); recStop(); mqStop(); chStop(); prStop(); stopTools(); folStop(); hearStop(); RD.mode="tap"; hidePop(); }
 function render(){
   stopAll();
   var cur=route(); renderChrome(cur); addFootLinks(); document.body.classList.toggle("home",cur==="start");
   if(gate==="ok"&&cur==="maqamat") MQ.id=firstOpenMq(MQ.id);
   var gate=IS_STUDIO&&ACC.mode!=="owner"?"login":(cur==="privacy"?"privacy":cur==="course"?"course":(cur==="admin"?(canSee("admin")?"admin":"lock"):(canSee(cur)?"ok":"lock")));
-  var v=gate==="login"?vOwnerLogin():gate==="privacy"?vPrivacy():gate==="course"?vCourse():gate==="admin"?vAdmin():gate==="lock"?vLocked(cur):{start:vStart,instrument:vInstrument,keyboard:vKeyboard,basics:vBasics,reading:vReading,chords:vChords,maqamat:vMaqam,practice:vPractice,warmup:vWarmup,ear:vEar,rhythms:vRhythms,tools:vTools,glossary:vGlossary}[cur]();
+  var v=gate==="login"?vOwnerLogin():gate==="privacy"?vPrivacy():gate==="course"?vCourse():gate==="admin"?vAdmin():gate==="lock"?vLocked(cur):{start:vStart,instrument:vInstrument,keyboard:vKeyboard,basics:vBasics,theory:vTheory,reading:vReading,chords:vChords,maqamat:vMaqam,practice:vPractice,warmup:vWarmup,ear:vEar,rhythms:vRhythms,tools:vTools,glossary:vGlossary}[cur]();
   document.getElementById("view").innerHTML=v;
   if(gate==="ok"&&cur==="start"){ stLoad(); stScroll(); musInit(); musBtn(); document.getElementById("st-snd").onclick=musToggle; }
   else { var tb=document.querySelector(".topbar"); if(tb) tb.classList.remove("solid"); }
@@ -2764,7 +3065,8 @@ function render(){
   if(gate==="ok"&&cur==="basics"){ kbLight("kb-cpos",CPOS);
     document.getElementById("cpos-r").onclick=function(){ [60,62,64,65,67,65,64,62,60].forEach(function(m,i){ playMidi(m,0.4,i*0.36); setTimeout(function(){ kbFlash(m); },i*360); }); };
     document.getElementById("cpos-l").onclick=function(){ [48,50,52,53,55,53,52,50,48].forEach(function(m,i){ playMidi(m,0.4,i*0.36); setTimeout(function(){ kbFlash(m); },i*360); }); }; }
-  if(gate==="ok"&&cur==="reading"){ rdNew(); document.getElementById("rd-skip").onclick=function(){ RD.streak=0; rdNew(); }; document.getElementById("rd-hint").onclick=function(){ if(RD.cur!==null){ kbLight("kb-quiz",[{m:RD.cur,h:"L"}]); playMidi(RD.cur,0.8); RD.streak=0; rdScore(); } }; document.getElementById("rd-mic").onclick=rdMic; }
+  if(gate==="ok"&&cur==="theory") bindTheory();
+  if(gate==="ok"&&cur==="reading"){ bindReadMore(); rdNew(); document.getElementById("rd-skip").onclick=function(){ RD.streak=0; rdNew(); }; document.getElementById("rd-hint").onclick=function(){ if(RD.cur!==null){ kbLight("kb-quiz",[{m:RD.cur,h:"L"}]); playMidi(RD.cur,0.8); RD.streak=0; rdScore(); } }; document.getElementById("rd-mic").onclick=rdMic; }
   if(gate==="ok"&&cur==="chords"){ renderChord(); renderProg(); document.getElementById("pr-key").onchange=function(e){ CH.key=+e.target.value; chStop(); renderProg(); kbLight("kb-pr",[]); }; midiInit(); }
   if(gate==="ok"&&cur==="maqamat"){ renderMaqam(); midiInit(); LISTEN.free=function(m){ tqNote(m); }; }
   if(gate==="ok"&&cur==="practice"&&document.getElementById("pc-panel")){ renderPiece(); midiInit(); var pq=document.getElementById("pc-q"); pq.oninput=function(){ PCF.q=pq.value; document.getElementById("pc-list").innerHTML=pcListHTML(); }; if(typeof impBind==="function") impBind(); }
@@ -2792,12 +3094,12 @@ var KEY_HELD={};
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape"){ hidePop(); return; }
   var cur=route(); if(e.target&&/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if(e.metaKey||e.ctrlKey||e.altKey) return;
-  if(["keyboard","reading","basics","instrument","start","chords","practice","warmup","rhythms","ear","maqamat"].indexOf(cur)<0) return;
+  if(["keyboard","reading","basics","instrument","start","chords","practice","warmup","rhythms","ear","maqamat","theory"].indexOf(cur)<0) return;
   if(e.key===" "&&document.getElementById("pa")){ e.preventDefault(); if(PA.mode) paStop(); else paStart("go"); return; }
   var k=e.key.toLowerCase();
   if(cur==="keyboard"&&(k==="z"||k==="x")){ KB_OCT=Math.max(24,Math.min(96,KB_OCT+(k==="z"?-12:12))); kbOctLabel(); kbScrollTo("kb-full",KB_OCT+6); return; }
   var i=KEYMAP.indexOf(k); if(i<0||KEY_HELD[k]) return; KEY_HELD[k]=1;
-  var m=KB_OCT+i; var id=cur==="keyboard"?"kb-full":cur==="reading"?(RD.mode==="tap"?"kb-quiz":"kb-read"):cur==="basics"?"kb-cpos":cur==="instrument"?"kb-inst":cur==="chords"?"kb-ch":(cur==="practice"||cur==="warmup"||(cur==="rhythms"&&document.getElementById("kb-pa")))?"kb-pa":cur==="rhythms"?"kb-rh":cur==="ear"?"kb-ear":cur==="maqamat"?"kb-tq":"kb-home";
+  var m=KB_OCT+i; var id=cur==="keyboard"?"kb-full":cur==="reading"?(RD.mode==="tap"?"kb-quiz":"kb-read"):cur==="basics"?"kb-cpos":cur==="instrument"?"kb-inst":cur==="chords"?"kb-ch":(cur==="practice"||cur==="warmup"||(cur==="rhythms"&&document.getElementById("kb-pa")))?"kb-pa":cur==="rhythms"?"kb-rh":cur==="ear"?"kb-ear":cur==="maqamat"?"kb-tq":cur==="theory"?"kb-th1":"kb-home";
   keyDown(m,id);
 });
 document.addEventListener("keyup",function(e){ delete KEY_HELD[e.key.toLowerCase()]; });
