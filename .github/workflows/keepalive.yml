@@ -1,8 +1,10 @@
 # Keeps the free Supabase project awake: it pauses after 7 days without activity.
+# Every day it calls keepalive(), which writes a timestamp in the heartbeat table
+# (a real database write, so Supabase counts the project as active).
 name: Keep database awake
 on:
   schedule:
-    - cron: "23 5 */3 * *"   # every 3 days
+    - cron: "23 5 * * *"   # every day
   workflow_dispatch:
 jobs:
   ping:
@@ -10,8 +12,13 @@ jobs:
     steps:
       - name: Ping Supabase
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZW90eGd1aHNuaWlmbGhrbnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTM2NDQsImV4cCI6MjExMDU2OTY0NH0.sPnsXcCOT9jJgDuR8v9BCrSgMZYJAAfSfkMvMqfg740" \
-            "https://xieotxguhsniiflhkntn.supabase.co/rest/v1/content?select=key&limit=1")
-          echo "Supabase answered $code"
-          test "$code" = "200"
+          for i in 1 2 3; do
+            code=$(curl -s -o out.txt -w "%{http_code}" -X POST \
+              -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZW90eGd1aHNuaWlmbGhrbnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTM2NDQsImV4cCI6MjExMDU2OTY0NH0.sPnsXcCOT9jJgDuR8v9BCrSgMZYJAAfSfkMvMqfg740" \
+              -H "Content-Type: application/json" -d '{}' \
+              "https://xieotxguhsniiflhkntn.supabase.co/rest/v1/rpc/keepalive")
+            echo "Supabase answered $code: $(cat out.txt)"
+            [ "$code" = "200" ] && exit 0
+            sleep 60
+          done
+          exit 1
